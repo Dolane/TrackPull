@@ -10,12 +10,13 @@
   <img src="https://img.shields.io/badge/Engine-yt--dlp-red?logo=youtube&logoColor=white" alt="yt-dlp">
   <img src="https://img.shields.io/badge/JS%20Engine-Deno-black?logo=deno&logoColor=white" alt="Deno">
   <img src="https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white" alt="Windows">
+  <img src="https://img.shields.io/badge/Version-v1.0.2-blue?logo=github&logoColor=white" alt="Version 1.0.2">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
 </p>
 
 <p align="center">
   <a href="https://github.com/Dolane/TrackPull/releases/latest">
-    <img src="https://img.shields.io/github/v/release/Dolane/TrackPull?color=2563EB&label=Download%20TrackPull.exe%20(v1.0.1)&logo=windows&logoColor=white&style=for-the-badge" alt="Download TrackPull.exe">
+    <img src="https://img.shields.io/github/v/release/Dolane/TrackPull?color=2563EB&label=Download%20TrackPull.exe%20(v1.0.2)&logo=windows&logoColor=white&style=for-the-badge" alt="Download TrackPull.exe">
   </a>
 </p>
 
@@ -211,10 +212,10 @@ dist\TrackPull.exe
 TrackPull includes a pre-configured automated GitHub Actions workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml).
 
 ### How It Works:
-1. Whenever you push a git version tag (e.g. `v1.0.1`):
+1. Whenever you push a git version tag (e.g. `v1.0.2`):
    ```powershell
-   git tag v1.0.1
-   git push origin v1.0.1
+   git tag v1.0.2
+   git push origin v1.0.2
    ```
 2. GitHub Actions automatically spins up a clean Windows virtual machine, sets up Python 3.12, installs dependencies, compiles `TrackPull.exe` via PyInstaller, and attaches the binary directly to the GitHub Release!
 3. Alternatively, you can publish a release manually on GitHub by clicking **Releases -> Draft a new release** and dragging `TrackPull.exe` into the binary upload box.
@@ -405,14 +406,14 @@ dist\TrackPull.exe
 **Варіант А (Автоматичний через Git-тег):**
 1. Створіть тег версії та відправте його на GitHub:
    ```powershell
-   git tag v1.0.1
-   git push origin v1.0.1
+   git tag v1.0.2
+   git push origin v1.0.2
    ```
 2. GitHub Actions самостійно запустить Windows-машину, скомпілює свіжий `TrackPull.exe` через PyInstaller та автоматично прикріпить його до сторінки Релізу!
 
 **Варіант Б (Через веб-інтерфейс GitHub вручну):**
 1. Перейдіть у репозиторій на GitHub: праворуч виберіть **Releases** ➔ **Draft a new release**.
-2. Вкажіть тег (наприклад, `v1.0.1`) та заголовок релізу (`TrackPull v1.0.1`).
+2. Вкажіть тег (наприклад, `v1.0.2`) та заголовок релізу (`TrackPull v1.0.2`).
 3. Перетягніть готовий локальний файл `TrackPull.exe` з папки проєкту у віконце **"Attach binaries by dropping them here"**.
 4. Натисніть **Publish release**. Готово! Тепер кожен відвідувач може завантажити програму в один клік.
 

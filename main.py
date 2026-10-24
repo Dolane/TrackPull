@@ -1,7 +1,7 @@
 """
 TrackPull - Modern Music & Playlist Downloader for Windows.
 
-Version: 1.0.1
+Version: 1.0.2
 Features:
 - Dual-column responsive studio layout
 - Full bilingual localization (Ukrainian & English) with dynamic switching
@@ -101,7 +101,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "eta_label": "Час: ",
         "card_terminal": "Хід завантаження (журнал):",
         "btn_clear_log": "Очистити",
-        "log_started": "=== TrackPull v1.0.1 успішно запущено. ===",
+        "log_started": "=== TrackPull v1.0.2 успішно запущено. ===",
         "log_ffmpeg_found": "FFmpeg готовий до конвертації аудіо.",
         "log_deno_active": "Прискорювач YouTube (Deno) активний.",
         "log_resuming_from": "Продовження завантаження плейлиста з пісні {index} з {total} ({index}/{total})...",
@@ -185,7 +185,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "eta_label": "ETA: ",
         "card_terminal": "Activity Log (Console):",
         "btn_clear_log": "Clear",
-        "log_started": "=== TrackPull v1.0.1 ready. ===",
+        "log_started": "=== TrackPull v1.0.2 ready. ===",
         "log_ffmpeg_found": "FFmpeg is ready for audio processing.",
         "log_deno_active": "YouTube accelerator (Deno) is active.",
         "log_resuming_from": "Resuming playlist download from song {index} of {total} ({index}/{total})...",
@@ -763,14 +763,14 @@ class AudioDownloadWorker(threading.Thread):
 
 
 # ============================================================================
-# MAIN APPLICATION INTERFACE (v1.0.1 BILINGUAL PRO STUDIO)
+# MAIN APPLICATION INTERFACE (v1.0.2 BILINGUAL PRO STUDIO)
 # ============================================================================
 
 class TrackPullApp(ctk.CTk):
     """Studio-grade bilingual Windows downloader interface."""
 
     APP_TITLE: str = "TrackPull"
-    APP_VERSION: str = "v1.0.1"
+    APP_VERSION: str = "v1.0.2"
     DEFAULT_WINDOW_SIZE: str = "960x720"
     MIN_WINDOW_WIDTH: int = 860
     MIN_WINDOW_HEIGHT: int = 660
