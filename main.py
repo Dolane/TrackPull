@@ -80,8 +80,13 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "btn_clear": "✕",
         "btn_download": "ЗАВАНТАЖИТИ МУЗИКУ",
         "btn_downloading": "ЗАВАНТАЖЕННЯ...",
+        "btn_resume": "ПРОДОВЖИТИ ЗАВАНТАЖЕННЯ",
         "btn_cancel": "Зупинити",
         "btn_stopping": "Зупинка...",
+        "playlist_badge_idle": "Плейлист: Очікування",
+        "playlist_badge_format": "Плейлист: {index} з {total} ({index}/{total})",
+        "playlist_badge_single": "Одиночний трек",
+        "playlist_completed_summary": "Плейлист: {completed} з {total} збережено!",
         "status_ready": "Статус: Готовий до роботи",
         "status_preparing": "Статус: Підготовка до завантаження...",
         "status_extracting": "Статус: Пошук та отримання треку...",
@@ -91,6 +96,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "status_completed": "Статус: Завершено успішно!",
         "status_cancelled": "Статус: Завантаження зупинено",
         "status_error": "Статус: Помилка завантаження",
+        "status_playlist_error": "Помилка на пісні [{index}/{total}]. Натисніть «ПРОДОВЖИТИ», щоб завантажити далі!",
         "speed_label": "Швидкість: ",
         "eta_label": "Час: ",
         "card_terminal": "Хід завантаження (журнал):",
@@ -98,12 +104,18 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "log_started": "=== TrackPull v1.0.1 успішно запущено. ===",
         "log_ffmpeg_found": "FFmpeg готовий до конвертації аудіо.",
         "log_deno_active": "Прискорювач YouTube (Deno) активний.",
+        "log_resuming_from": "Продовження завантаження плейлиста з пісні {index} з {total} ({index}/{total})...",
         "msg_empty_url_title": "Порожнє посилання",
         "msg_empty_url_body": "Будь ласка, вставте посилання на пісню або плейлист у поле вводу.",
         "msg_invalid_url_title": "Некоректне посилання",
         "msg_invalid_url_body": "Посилання має починатися з http:// або https://",
         "msg_success_title": "Успіх",
         "msg_success_body": "Музику успішно завантажено та збережено!",
+        "msg_resume_title": "Помилка пісні в плейлисті",
+        "msg_resume_body": (
+            "Не вдалося завантажити пісню #{failed_index} з {total}.\n\n"
+            "Натисніть зелену кнопку «ПРОДОВЖИТИ ЗАВАНТАЖЕННЯ», щоб пропустити проблемний файл та продовжити завантаження наступних пісень (з {next_index} з {total})!"
+        ),
         "msg_folder_not_found_title": "Папка не знайдена",
         "msg_folder_not_found_body": "Вказана папка не існує на комп'ютері:\n",
         "msg_ffmpeg_missing_title": "FFmpeg не знайдено",
@@ -152,8 +164,13 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "btn_clear": "✕",
         "btn_download": "DOWNLOAD MUSIC",
         "btn_downloading": "DOWNLOADING...",
+        "btn_resume": "CONTINUE DOWNLOAD",
         "btn_cancel": "Cancel",
         "btn_stopping": "Stopping...",
+        "playlist_badge_idle": "Playlist: Ready",
+        "playlist_badge_format": "Playlist: {index} of {total} ({index}/{total})",
+        "playlist_badge_single": "Single Track",
+        "playlist_completed_summary": "Playlist: {completed} of {total} saved!",
         "status_ready": "Status: Ready to download",
         "status_preparing": "Status: Preparing download...",
         "status_extracting": "Status: Fetching song details...",
@@ -163,6 +180,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "status_completed": "Status: Download completed!",
         "status_cancelled": "Status: Download stopped",
         "status_error": "Status: Download error",
+        "status_playlist_error": "Error on song [{index}/{total}]. Click 'CONTINUE' to resume remaining!",
         "speed_label": "Speed: ",
         "eta_label": "ETA: ",
         "card_terminal": "Activity Log (Console):",
@@ -170,12 +188,18 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "log_started": "=== TrackPull v1.0.1 ready. ===",
         "log_ffmpeg_found": "FFmpeg is ready for audio processing.",
         "log_deno_active": "YouTube accelerator (Deno) is active.",
+        "log_resuming_from": "Resuming playlist download from song {index} of {total} ({index}/{total})...",
         "msg_empty_url_title": "Empty Link",
         "msg_empty_url_body": "Please paste a link to a song or playlist in the input field.",
         "msg_invalid_url_title": "Invalid Link",
         "msg_invalid_url_body": "The link must start with http:// or https://",
         "msg_success_title": "Success",
         "msg_success_body": "Audio successfully downloaded and saved!",
+        "msg_resume_title": "Playlist Song Error",
+        "msg_resume_body": (
+            "Failed to download song #{failed_index} of {total}.\n\n"
+            "Click the green 'CONTINUE DOWNLOAD' button to skip this file and download remaining songs (from {next_index} of {total})!"
+        ),
         "msg_folder_not_found_title": "Folder Not Found",
         "msg_folder_not_found_body": "Specified folder does not exist:\n",
         "msg_ffmpeg_missing_title": "FFmpeg Missing",
@@ -211,6 +235,7 @@ class DownloadOptions:
     is_playlist: bool
     embed_metadata: bool
     embed_thumbnail: bool
+    playlist_start_index: int = 1
 
 
 class SystemDependencyChecker:
@@ -309,15 +334,36 @@ class SystemDependencyChecker:
 # ============================================================================
 
 class YTDLPMessageLogger:
-    """Custom logger redirecting yt-dlp messages to the UI console."""
+    """Custom logger redirecting yt-dlp messages to the UI console with playlist detection."""
 
-    def __init__(self, dispatch_log: Callable[[str, str], None]) -> None:
+    PLAYLIST_REGEX = re.compile(r'(?:video|item)?\s*(\d+)\s+of\s+(\d+)', re.IGNORECASE)
+
+    def __init__(
+        self,
+        dispatch_log: Callable[[str, str], None],
+        on_playlist_step: Optional[Callable[[int, int], None]] = None,
+        on_track_error: Optional[Callable[[str], None]] = None,
+    ) -> None:
         self._dispatch_log: Callable[[str, str], None] = dispatch_log
+        self._on_playlist_step: Optional[Callable[[int, int], None]] = on_playlist_step
+        self._on_track_error: Optional[Callable[[str], None]] = on_track_error
+
+    def _check_playlist_mention(self, message: str) -> None:
+        match = self.PLAYLIST_REGEX.search(message)
+        if match and self._on_playlist_step:
+            try:
+                idx = int(match.group(1))
+                total = int(match.group(2))
+                self._on_playlist_step(idx, total)
+            except ValueError:
+                pass
 
     def debug(self, message: str) -> None:
         clean_msg: str = message.strip()
         if not clean_msg:
             return
+
+        self._check_playlist_mention(clean_msg)
 
         if "[download]" in clean_msg and "%" in clean_msg:
             return
@@ -330,7 +376,10 @@ class YTDLPMessageLogger:
 
     def info(self, message: str) -> None:
         clean_msg: str = message.strip()
-        if clean_msg and not ("%" in clean_msg and "[download]" in clean_msg):
+        if not clean_msg:
+            return
+        self._check_playlist_mention(clean_msg)
+        if not ("%" in clean_msg and "[download]" in clean_msg):
             self._dispatch_log(clean_msg, "INFO")
 
     def warning(self, message: str) -> None:
@@ -342,6 +391,8 @@ class YTDLPMessageLogger:
     def error(self, message: str) -> None:
         clean_msg: str = message.strip()
         if clean_msg:
+            if self._on_track_error:
+                self._on_track_error(clean_msg)
             self._dispatch_log(f"Помилка: {clean_msg}", "ERROR")
 
 
@@ -350,7 +401,7 @@ class YTDLPMessageLogger:
 # ============================================================================
 
 class AudioDownloadWorker(threading.Thread):
-    """Worker thread running yt-dlp asynchronously."""
+    """Worker thread running yt-dlp asynchronously with resilient playlist & resume support."""
 
     def __init__(
         self,
@@ -360,7 +411,7 @@ class AudioDownloadWorker(threading.Thread):
         on_progress: Callable[[float, str, str, str, Optional[int], Optional[int]], None],
         on_phase_change: Callable[[str], None],
         on_log: Callable[[str, str], None],
-        on_complete: Callable[[bool, str, bool], None],
+        on_complete: Callable[[bool, str, bool, Optional[int], Optional[int], int], None],
     ) -> None:
         super().__init__(name="AudioDownloadWorkerThread", daemon=True)
         self.options: DownloadOptions = options
@@ -369,13 +420,30 @@ class AudioDownloadWorker(threading.Thread):
         self.on_progress: Callable[[float, str, str, str, Optional[int], Optional[int]], None] = on_progress
         self.on_phase_change: Callable[[str], None] = on_phase_change
         self.on_log: Callable[[str, str], None] = on_log
-        self.on_complete: Callable[[bool, str, bool], None] = on_complete
+        self.on_complete: Callable[[bool, str, bool, Optional[int], Optional[int], int], None] = on_complete
 
         self._cancellation_requested: threading.Event = threading.Event()
         self._logged_postprocessors: Set[str] = set()
 
+        self.current_playlist_index: Optional[int] = self.options.playlist_start_index if self.options.is_playlist else None
+        self.current_playlist_total: Optional[int] = None
+        self.current_track_title: str = ""
+        self.completed_tracks_count: int = 0
+        self.failed_tracks: List[int] = []
+        self.last_failed_index: Optional[int] = None
+
     def request_cancellation(self) -> None:
         self._cancellation_requested.set()
+
+    def _on_playlist_step_detected(self, index: int, total: int) -> None:
+        self.current_playlist_index = index
+        self.current_playlist_total = total
+
+    def _on_track_error_detected(self, error_message: str) -> None:
+        if self.current_playlist_index:
+            self.last_failed_index = self.current_playlist_index
+            if self.current_playlist_index not in self.failed_tracks:
+                self.failed_tracks.append(self.current_playlist_index)
 
     def _progress_hook(self, payload: Dict[str, Any]) -> None:
         if self._cancellation_requested.is_set():
@@ -390,8 +458,26 @@ class AudioDownloadWorker(threading.Thread):
             eta_seconds: Optional[int] = payload.get("eta")
             filename: str = os.path.basename(payload.get("filename", ""))
 
-            playlist_index: Optional[int] = payload.get("playlist_index")
-            playlist_count: Optional[int] = payload.get("n_entries") or payload.get("playlist_count")
+            info_dict: Dict[str, Any] = payload.get("info_dict") or {}
+            p_idx = (
+                payload.get("playlist_index") or
+                info_dict.get("playlist_index") or
+                payload.get("playlist_autonumber")
+            )
+            p_cnt = (
+                payload.get("n_entries") or
+                payload.get("playlist_count") or
+                info_dict.get("n_entries") or
+                info_dict.get("playlist_count")
+            )
+
+            if p_idx:
+                self.current_playlist_index = int(p_idx)
+            if p_cnt:
+                self.current_playlist_total = int(p_cnt)
+
+            if info_dict.get("title"):
+                self.current_track_title = str(info_dict.get("title"))
 
             ratio: float = 0.0
             if total_bytes and total_bytes > 0:
@@ -415,11 +501,25 @@ class AudioDownloadWorker(threading.Thread):
                 else:
                     eta_text = f"{minutes:02d}:{seconds:02d}"
 
-            self.on_progress(ratio, speed_text, eta_text, filename, playlist_index, playlist_count)
+            track_name = self.current_track_title or filename
+            self.on_progress(
+                ratio,
+                speed_text,
+                eta_text,
+                track_name,
+                self.current_playlist_index,
+                self.current_playlist_total
+            )
 
         elif status == "finished":
             filename = os.path.basename(payload.get("filename", ""))
-            self.on_phase_change(f"Аудіопотік отримано ({filename}). Обробка...")
+            self.completed_tracks_count += 1
+            if self.current_playlist_index and self.current_playlist_total:
+                self.on_phase_change(
+                    f"[{self.current_playlist_index}/{self.current_playlist_total}] Аудіопотік отримано. Обробка..."
+                )
+            else:
+                self.on_phase_change(f"Аудіопотік отримано ({filename}). Обробка...")
 
     def _postprocessor_hook(self, payload: Dict[str, Any]) -> None:
         if self._cancellation_requested.is_set():
@@ -427,26 +527,40 @@ class AudioDownloadWorker(threading.Thread):
 
         status: Optional[str] = payload.get("status")
         pp_name: str = payload.get("postprocessor", "PostProcessor")
+        info_dict: Dict[str, Any] = payload.get("info_dict") or {}
+
+        p_idx = (
+            payload.get("playlist_index") or
+            info_dict.get("playlist_index") or
+            self.current_playlist_index
+        )
+        p_cnt = (
+            payload.get("n_entries") or
+            payload.get("playlist_count") or
+            info_dict.get("n_entries") or
+            self.current_playlist_total
+        )
+        prefix = f"[{p_idx}/{p_cnt}] " if (p_idx and p_cnt) else ""
 
         if status == "started":
             if pp_name == "ExtractAudio":
-                self.on_phase_change("Перетворення звуку (FFmpeg)...")
+                self.on_phase_change(f"{prefix}Перетворення звуку (FFmpeg)...")
             elif pp_name == "EmbedThumbnail":
-                self.on_phase_change("Збереження обкладинки треку...")
+                self.on_phase_change(f"{prefix}Збереження обкладинки треку...")
             elif pp_name == "Metadata":
-                self.on_phase_change("Запис автора та назви пісні...")
+                self.on_phase_change(f"{prefix}Запис автора та назви пісні...")
             else:
-                self.on_phase_change(f"Обробка: {pp_name}...")
+                self.on_phase_change(f"{prefix}Обробка: {pp_name}...")
         elif status == "finished":
-            item_key = f"{pp_name}_{payload.get('info_dict', {}).get('id', '')}"
+            item_key = f"{pp_name}_{info_dict.get('id', '')}"
             if item_key not in self._logged_postprocessors:
                 self._logged_postprocessors.add(item_key)
                 if pp_name == "ExtractAudio":
-                    self.on_log("Перетворення звуку завершено.", "INFO")
+                    self.on_log(f"{prefix}Перетворення звуку завершено.", "INFO")
                 elif pp_name == "EmbedThumbnail":
-                    self.on_log("Обкладинку треку успішно збережено.", "INFO")
+                    self.on_log(f"{prefix}Обкладинку треку успішно збережено.", "INFO")
                 elif pp_name == "Metadata":
-                    self.on_log("Дані автора та назву пісні записано.", "INFO")
+                    self.on_log(f"{prefix}Дані автора та назву пісні записано.", "INFO")
 
     def run(self) -> None:
         self.on_log(f"Початок обробки: {self.options.url}", "INFO")
@@ -457,7 +571,7 @@ class AudioDownloadWorker(threading.Thread):
         except OSError as folder_err:
             error_message = f"Не вдалося створити папку для збереження: {folder_err}"
             self.on_log(error_message, "ERROR")
-            self.on_complete(False, error_message, False)
+            self.on_complete(False, error_message, False, None, None, 0)
             return
 
         if self.options.is_playlist:
@@ -500,13 +614,17 @@ class AudioDownloadWorker(threading.Thread):
                 "already_have_thumbnail": False,
             })
 
+        # Archive file ensures already downloaded songs are skipped immediately without re-downloading
+        archive_file: str = os.path.join(self.options.output_directory, ".trackpull_archive.txt")
+
         ydl_opts: Dict[str, Any] = {
             "format": "bestaudio/best",
             "outtmpl": output_template,
             "windowsfilenames": True,
             "restrictfilenames": False,
             "noplaylist": not self.options.is_playlist,
-            "ignoreerrors": self.options.is_playlist,
+            "ignoreerrors": True if self.options.is_playlist else False,
+            "download_archive": archive_file,
             "concurrent_fragment_downloads": 8,
             "buffersize": 1024 * 64,
             "http_chunk_size": 10485760,
@@ -519,11 +637,22 @@ class AudioDownloadWorker(threading.Thread):
             "postprocessors": postprocessors,
             "progress_hooks": [self._progress_hook],
             "postprocessor_hooks": [self._postprocessor_hook],
-            "logger": YTDLPMessageLogger(self.on_log),
+            "logger": YTDLPMessageLogger(
+                self.on_log,
+                on_playlist_step=self._on_playlist_step_detected,
+                on_track_error=self._on_track_error_detected,
+            ),
             "quiet": False,
             "no_warnings": False,
             "updatetime": False,
         }
+
+        if self.options.playlist_start_index > 1:
+            ydl_opts["playliststart"] = self.options.playlist_start_index
+            self.on_log(
+                f"Продовження завантаження з пісні {self.options.playlist_start_index}...",
+                "INFO"
+            )
 
         if self.options.embed_thumbnail:
             ydl_opts["writethumbnail"] = True
@@ -535,40 +664,102 @@ class AudioDownloadWorker(threading.Thread):
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 exit_code: int = ydl.download([self.options.url])
                 if exit_code == 0:
-                    success_msg: str = "Усі аудіотреки успішно завантажено та збережено!"
+                    if self.options.is_playlist and self.current_playlist_total:
+                        success_msg: str = (
+                            f"Усі {self.current_playlist_total} пісень плейлиста успішно збережено!"
+                        )
+                    else:
+                        success_msg = "Усі аудіотреки успішно завантажено та збережено!"
                     self.on_log(success_msg, "SUCCESS")
-                    self.on_complete(True, success_msg, False)
+                    self.on_complete(
+                        True,
+                        success_msg,
+                        False,
+                        None,
+                        self.current_playlist_total,
+                        self.completed_tracks_count or (self.current_playlist_total or 1)
+                    )
                 else:
-                    partial_msg: str = f"Завантаження завершилося з кодом {exit_code}."
-                    self.on_log(partial_msg, "WARNING")
-                    self.on_complete(True, partial_msg, False)
+                    if self.failed_tracks:
+                        failed_count = len(self.failed_tracks)
+                        summary_msg = (
+                            f"Завершено: завантажено {self.completed_tracks_count} пісень. "
+                            f"Пропущено {failed_count} через недоступність джерела."
+                        )
+                        self.on_log(summary_msg, "WARNING")
+                        self.on_complete(
+                            True,
+                            summary_msg,
+                            False,
+                            None,
+                            self.current_playlist_total,
+                            self.completed_tracks_count
+                        )
+                    else:
+                        partial_msg: str = f"Завантаження завершилося з попередженням (код {exit_code})."
+                        self.on_log(partial_msg, "WARNING")
+                        self.on_complete(
+                            True,
+                            partial_msg,
+                            False,
+                            None,
+                            self.current_playlist_total,
+                            self.completed_tracks_count
+                        )
 
         except yt_dlp.utils.DownloadCancelled:
             cancel_msg: str = "Завантаження зупинено користувачем."
             self.on_log(cancel_msg, "WARNING")
-            self.on_complete(False, cancel_msg, True)
+            self.on_complete(
+                False,
+                cancel_msg,
+                True,
+                self.current_playlist_index,
+                self.current_playlist_total,
+                self.completed_tracks_count
+            )
 
         except yt_dlp.utils.DownloadError as download_err:
             raw_err: str = str(download_err)
+            failed_idx = self.last_failed_index or self.current_playlist_index
             if "ffmpeg" in raw_err.lower():
                 friendly_err: str = (
                     "Не знайдено FFmpeg для конвертації звуку або запису тегів. "
-                    "Будь ласка, встановіть FFmpeg."
+                    "Будь ласка, перевірте наявність FFmpeg."
                 )
             elif "unsupported url" in raw_err.lower():
                 friendly_err = "Непідтримуване або некоректне посилання на пісню чи плейлист."
             elif "private video" in raw_err.lower() or "sign in" in raw_err.lower():
-                friendly_err = "Цей трек є приватним чи вимагає авторизації в акаунті."
+                friendly_err = (
+                    f"Пісня #{failed_idx} є приватною або недоступною. "
+                    "Натисніть «ПРОДОВЖИТИ», щоб завантажити наступні пісні."
+                    if failed_idx else "Цей трек є приватним чи вимагає авторизації в акаунті."
+                )
             else:
                 friendly_err = f"Помилка завантаження: {raw_err}"
 
             self.on_log(friendly_err, "ERROR")
-            self.on_complete(False, friendly_err, False)
+            self.on_complete(
+                False,
+                friendly_err,
+                False,
+                failed_idx,
+                self.current_playlist_total,
+                self.completed_tracks_count
+            )
 
         except Exception as unexpected_err:
             error_msg: str = f"Непередбачена помилка: {unexpected_err}"
+            failed_idx = self.last_failed_index or self.current_playlist_index
             self.on_log(error_msg, "ERROR")
-            self.on_complete(False, error_msg, False)
+            self.on_complete(
+                False,
+                error_msg,
+                False,
+                failed_idx,
+                self.current_playlist_total,
+                self.completed_tracks_count
+            )
 
 
 # ============================================================================
@@ -627,9 +818,13 @@ class TrackPullApp(ctk.CTk):
         self._ffmpeg_location: str = ""
         self._deno_available: bool = False
         self._deno_location: str = ""
+        self.resumable_info: Optional[Dict[str, Any]] = None
 
         # Set taskbar icon
         self._set_application_icon()
+
+        # Enable universal keyboard shortcuts across all layouts (Ukrainian, English, etc.)
+        self._enable_universal_clipboard_shortcuts()
 
         # Build solid dual-column studio layout
         self._build_interface()
@@ -646,6 +841,83 @@ class TrackPullApp(ctk.CTk):
 
     def dispatch_to_ui(self, function: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
         self.after(0, lambda: function(*args, **kwargs))
+
+    def _enable_universal_clipboard_shortcuts(self) -> None:
+        """Fixes Windows/Tkinter bug where Ctrl+V, Ctrl+C, Ctrl+X, Ctrl+A only work on English keyboard layout."""
+        # 1. Map Cyrillic keysyms to virtual Tkinter clipboard events
+        cyrillic_mappings = [
+            ("<<Paste>>", ["Cyrillic_em", "Cyrillic_EM"]),
+            ("<<Copy>>", ["Cyrillic_es", "Cyrillic_ES"]),
+            ("<<Cut>>", ["Cyrillic_che", "Cyrillic_CHE"]),
+            ("<<SelectAll>>", ["Cyrillic_ef", "Cyrillic_EF"]),
+            ("<<Undo>>", ["Cyrillic_ya", "Cyrillic_YA"]),
+        ]
+        for event_name, keysyms in cyrillic_mappings:
+            for sym in keysyms:
+                try:
+                    self.event_add(event_name, f"<Control-Key-{sym}>")
+                except Exception:
+                    pass
+
+        # 2. Global keycode-level handler (Windows VK codes: V=86, C=67, X=88, A=65, Z=90)
+        def _on_control_keypress(event: Any) -> Optional[str]:
+            if not (event.state & 4):
+                return None
+
+            raw_widget = event.widget
+            target = getattr(raw_widget, "_entry", getattr(raw_widget, "_textbox", raw_widget))
+
+            # VK_V = 86: Paste (Ctrl+V)
+            if event.keycode == 86 and event.keysym not in ("v", "V"):
+                try:
+                    target.event_generate("<<Paste>>")
+                    self.after(50, self._on_url_modified)
+                    return "break"
+                except Exception:
+                    pass
+
+            # VK_C = 67: Copy (Ctrl+C)
+            elif event.keycode == 67 and event.keysym not in ("c", "C"):
+                try:
+                    target.event_generate("<<Copy>>")
+                    return "break"
+                except Exception:
+                    pass
+
+            # VK_X = 88: Cut (Ctrl+X)
+            elif event.keycode == 88 and event.keysym not in ("x", "X"):
+                try:
+                    target.event_generate("<<Cut>>")
+                    self.after(50, self._on_url_modified)
+                    return "break"
+                except Exception:
+                    pass
+
+            # VK_A = 65: Select All (Ctrl+A)
+            elif event.keycode == 65 and event.keysym not in ("a", "A"):
+                try:
+                    import tkinter as tk
+                    if isinstance(target, tk.Entry):
+                        target.select_range(0, "end")
+                        target.icursor("end")
+                        return "break"
+                    elif isinstance(target, tk.Text):
+                        target.tag_add("sel", "1.0", "end")
+                        return "break"
+                except Exception:
+                    pass
+
+            # VK_Z = 90: Undo (Ctrl+Z)
+            elif event.keycode == 90 and event.keysym not in ("z", "Z"):
+                try:
+                    target.event_generate("<<Undo>>")
+                    return "break"
+                except Exception:
+                    pass
+
+            return None
+
+        self.bind_all("<Control-KeyPress>", _on_control_keypress, add="+")
 
     def _set_application_icon(self) -> None:
         try:
@@ -1024,6 +1296,7 @@ class TrackPullApp(ctk.CTk):
             font=ctk.CTkFont(size=13)
         )
         self.url_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        self.url_entry.bind("<KeyRelease>", lambda e: self._on_url_modified())
 
         self.paste_btn = ctk.CTkButton(
             input_box,
@@ -1088,24 +1361,51 @@ class TrackPullApp(ctk.CTk):
         )
         self.cancel_button.grid(row=0, column=1, sticky="ew")
 
-        self.progress_bar = ctk.CTkProgressBar(card, height=10, corner_radius=5)
-        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 10))
-        self.progress_bar.set(0.0)
-
-        metrics_box = ctk.CTkFrame(card, fg_color="transparent")
-        metrics_box.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 14))
-        metrics_box.grid_columnconfigure(0, weight=2)
-        metrics_box.grid_columnconfigure(1, weight=1)
-        metrics_box.grid_columnconfigure(2, weight=1)
+        # Row 1: Status Phase & Dedicated Playlist Progress Pill
+        status_row = ctk.CTkFrame(card, fg_color="transparent")
+        status_row.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 6))
+        status_row.grid_columnconfigure(0, weight=1)
+        status_row.grid_columnconfigure(1, weight=0)
 
         self.status_phase_label = ctk.CTkLabel(
-            metrics_box,
+            status_row,
             text=self._t("status_ready"),
             font=ctk.CTkFont(size=12, weight="bold"),
             text_color=self.TEXT_PRIMARY,
             anchor="w"
         )
         self.status_phase_label.grid(row=0, column=0, sticky="w")
+
+        self.playlist_badge = ctk.CTkLabel(
+            status_row,
+            text=self._t("playlist_badge_idle"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=("#EEF2FF", "#1E2235"),
+            text_color=("#4F46E5", "#818CF8"),
+            corner_radius=6,
+            padx=10,
+            pady=3,
+        )
+        self.playlist_badge.grid(row=0, column=1, sticky="e")
+
+        self.progress_bar = ctk.CTkProgressBar(card, height=10, corner_radius=5)
+        self.progress_bar.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 10))
+        self.progress_bar.set(0.0)
+
+        metrics_box = ctk.CTkFrame(card, fg_color="transparent")
+        metrics_box.grid(row=3, column=0, sticky="ew", padx=16, pady=(0, 14))
+        metrics_box.grid_columnconfigure(0, weight=2)
+        metrics_box.grid_columnconfigure(1, weight=1)
+        metrics_box.grid_columnconfigure(2, weight=1)
+
+        self.current_track_label = ctk.CTkLabel(
+            metrics_box,
+            text="--",
+            font=ctk.CTkFont(size=11),
+            text_color=self.TEXT_SECONDARY,
+            anchor="w"
+        )
+        self.current_track_label.grid(row=0, column=0, sticky="w")
 
         self.speed_badge = ctk.CTkLabel(
             metrics_box,
@@ -1248,9 +1548,23 @@ class TrackPullApp(ctk.CTk):
         self.paste_btn.configure(text=self._t("btn_paste"))
 
         if not self._active_worker:
-            self.download_button.configure(text=self._t("btn_download"))
+            if self.resumable_info:
+                next_idx = self.resumable_info.get("next_index", 1)
+                total = self.resumable_info.get("total_count", "?")
+                self.download_button.configure(
+                    text=f"{self._t('btn_resume')} ({next_idx}/{total})",
+                    fg_color=("#059669", "#10B981"),
+                    hover_color=("#047857", "#059669")
+                )
+            else:
+                self.download_button.configure(
+                    text=self._t("btn_download"),
+                    fg_color=self.ACCENT_PRIMARY,
+                    hover_color=self.ACCENT_HOVER
+                )
             self.cancel_button.configure(text=self._t("btn_cancel"))
             self.status_phase_label.configure(text=self._t("status_ready"))
+            self.playlist_badge.configure(text=self._t("playlist_badge_idle"))
         else:
             self.download_button.configure(text=self._t("btn_downloading"))
             self.cancel_button.configure(text=self._t("btn_cancel"))
@@ -1284,18 +1598,30 @@ class TrackPullApp(ctk.CTk):
             self.quality_title.configure(text=self._t("quality_title"))
             self.quality_menu.set(self._t("bitrate_320"))
 
+    def _on_url_modified(self) -> None:
+        if self.resumable_info:
+            self.resumable_info = None
+            self.download_button.configure(
+                text=self._t("btn_download"),
+                fg_color=self.ACCENT_PRIMARY,
+                hover_color=self.ACCENT_HOVER
+            )
+            self.playlist_badge.configure(text=self._t("playlist_badge_idle"))
+
     def _paste_clipboard_url(self) -> None:
         try:
             content: str = self.clipboard_get().strip()
             if content:
                 self.url_entry.delete(0, "end")
                 self.url_entry.insert(0, content)
+                self._on_url_modified()
                 self._append_log_message(f"Вставлено: {content}", "INFO")
         except Exception as clip_err:
             self._append_log_message(f"Буфер обміну недоступний: {clip_err}", "WARNING")
 
     def _clear_url_entry(self) -> None:
         self.url_entry.delete(0, "end")
+        self._on_url_modified()
 
     def _browse_directory(self) -> None:
         selected: str = filedialog.askdirectory(
@@ -1456,6 +1782,27 @@ class TrackPullApp(ctk.CTk):
             if not proceed:
                 return
 
+        start_index: int = 1
+        if self.resumable_info and self.resumable_info.get("url") == options.url:
+            start_index = self.resumable_info.get("next_index", 1)
+            total = self.resumable_info.get("total_count", "?")
+            self._append_log_message(
+                self._t("log_resuming_from").format(index=start_index, total=total),
+                "INFO"
+            )
+            self.resumable_info = None
+
+        options = DownloadOptions(
+            url=options.url,
+            output_directory=options.output_directory,
+            audio_format=options.audio_format,
+            audio_bitrate=options.audio_bitrate,
+            is_playlist=options.is_playlist,
+            embed_metadata=options.embed_metadata,
+            embed_thumbnail=options.embed_thumbnail,
+            playlist_start_index=start_index,
+        )
+
         self._set_ui_busy_state(True)
         self.progress_bar.set(0.0)
         self.speed_badge.configure(text=f"{self._t('speed_label')}--")
@@ -1471,7 +1818,9 @@ class TrackPullApp(ctk.CTk):
             ),
             on_phase_change=lambda phase: self.dispatch_to_ui(self._update_phase, phase),
             on_log=lambda msg, lvl: self.dispatch_to_ui(self._append_log_message, msg, lvl),
-            on_complete=lambda ok, res, canc: self.dispatch_to_ui(self._on_download_completed, ok, res, canc),
+            on_complete=lambda ok, res, canc, f_idx, t_cnt, c_cnt: self.dispatch_to_ui(
+                self._on_download_completed, ok, res, canc, f_idx, t_cnt, c_cnt
+            ),
         )
         self._active_worker.start()
 
@@ -1493,7 +1842,22 @@ class TrackPullApp(ctk.CTk):
             self.metadata_switch.configure(state="disabled")
             self.thumbnail_switch.configure(state="disabled")
         else:
-            self.download_button.configure(state="normal", text=self._t("btn_download"))
+            if self.resumable_info:
+                next_idx = self.resumable_info.get("next_index", 1)
+                total = self.resumable_info.get("total_count", "?")
+                self.download_button.configure(
+                    state="normal",
+                    text=f"{self._t('btn_resume')} ({next_idx}/{total})",
+                    fg_color=("#059669", "#10B981"),
+                    hover_color=("#047857", "#059669")
+                )
+            else:
+                self.download_button.configure(
+                    state="normal",
+                    text=self._t("btn_download"),
+                    fg_color=self.ACCENT_PRIMARY,
+                    hover_color=self.ACCENT_HOVER
+                )
             self.cancel_button.configure(state="disabled", text=self._t("btn_cancel"))
             self.url_entry.configure(state="normal")
             self.format_segmented.configure(state="normal")
@@ -1517,34 +1881,102 @@ class TrackPullApp(ctk.CTk):
         self.speed_badge.configure(text=f"{self._t('speed_label')}{speed_text}")
         self.eta_badge.configure(text=f"{percent_value:.1f}%  |  {self._t('eta_label')}{eta_text}")
 
+        if playlist_index and playlist_count:
+            badge_text = self._t("playlist_badge_format").format(index=playlist_index, total=playlist_count)
+            self.playlist_badge.configure(
+                text=badge_text,
+                fg_color=("#EEF2FF", "#1E2235"),
+                text_color=("#4F46E5", "#818CF8")
+            )
+        else:
+            self.playlist_badge.configure(
+                text=self._t("playlist_badge_single"),
+                fg_color=("gray90", "#1E2235"),
+                text_color=self.TEXT_SECONDARY
+            )
+
         if filename:
-            short_name = (filename[:34] + "...") if len(filename) > 36 else filename
-            if playlist_index and playlist_count:
-                self.status_phase_label.configure(
-                    text=f"[{playlist_index}/{playlist_count}] {short_name}"
-                )
-            else:
-                self.status_phase_label.configure(text=f"Трек: {short_name}")
+            short_name = (filename[:36] + "...") if len(filename) > 38 else filename
+            self.current_track_label.configure(
+                text=f"{'Трек: ' if self.current_lang == 'UA' else 'Track: '}{short_name}"
+            )
 
     def _update_phase(self, phase_description: str) -> None:
         self.status_phase_label.configure(text=f"Статус: {phase_description}")
 
-    def _on_download_completed(self, is_success: bool, summary_message: str, was_cancelled: bool) -> None:
-        self._set_ui_busy_state(False)
+    def _on_download_completed(
+        self,
+        is_success: bool,
+        summary_message: str,
+        was_cancelled: bool,
+        failed_index: Optional[int] = None,
+        total_count: Optional[int] = None,
+        completed_count: int = 0
+    ) -> None:
         self._active_worker = None
 
         if was_cancelled:
             self.status_phase_label.configure(text=self._t("status_cancelled"))
+            self._set_ui_busy_state(False)
             messagebox.showinfo(self._t("status_cancelled"), self._t("status_cancelled"))
         elif is_success:
+            self.resumable_info = None
             self.progress_bar.set(1.0)
             self.status_phase_label.configure(text=self._t("status_completed"))
             self.speed_badge.configure(text=f"{self._t('speed_label')}--")
             self.eta_badge.configure(text=f"100.0%  |  {self._t('eta_label')}00:00")
-            messagebox.showinfo(self._t("msg_success_title"), self._t("msg_success_body"))
+            if total_count and total_count > 1:
+                self.playlist_badge.configure(
+                    text=self._t("playlist_completed_summary").format(
+                        completed=completed_count or total_count,
+                        total=total_count
+                    ),
+                    fg_color=("#ECFDF5", "#064E3B"),
+                    text_color=("#059669", "#34D399")
+                )
+            self._set_ui_busy_state(False)
+            messagebox.showinfo(self._t("msg_success_title"), summary_message or self._t("msg_success_body"))
         else:
-            self.status_phase_label.configure(text=self._t("status_error"))
-            messagebox.showerror(self._t("status_error"), summary_message)
+            if failed_index and total_count and (failed_index < total_count):
+                next_track = failed_index + 1
+                self.resumable_info = {
+                    "url": self.url_entry.get().strip(),
+                    "next_index": next_track,
+                    "total_count": total_count,
+                    "failed_index": failed_index,
+                }
+                resume_btn_text = f"{self._t('btn_resume')} ({next_track}/{total_count})"
+                self.download_button.configure(
+                    state="normal",
+                    text=resume_btn_text,
+                    fg_color=("#059669", "#10B981"),
+                    hover_color=("#047857", "#059669"),
+                )
+                error_status = self._t("status_playlist_error").format(
+                    index=failed_index,
+                    total=total_count,
+                    next_index=next_track
+                )
+                self.status_phase_label.configure(text=error_status)
+                self.playlist_badge.configure(
+                    text=f"{'Помилка: ' if self.current_lang == 'UA' else 'Error: '}{failed_index}/{total_count}",
+                    fg_color=("#FEF2F2", "#7F1D1D"),
+                    text_color=("#DC2626", "#F87171")
+                )
+                self._set_ui_busy_state(False)
+                messagebox.showwarning(
+                    self._t("msg_resume_title"),
+                    self._t("msg_resume_body").format(
+                        failed_index=failed_index,
+                        total=total_count,
+                        next_index=next_track
+                    )
+                )
+            else:
+                self.resumable_info = None
+                self.status_phase_label.configure(text=self._t("status_error"))
+                self._set_ui_busy_state(False)
+                messagebox.showerror(self._t("status_error"), summary_message)
 
 
 # ============================================================================

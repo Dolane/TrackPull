@@ -56,7 +56,9 @@
 - **Zero UI Freezing (Asynchronous Multithreading)**: All downloads and conversion tasks run in dedicated worker threads via Python's `threading` module with thread-safe UI updates dispatched via `.after()`.
 - **Live Progress & Metrics**: Smooth animated progress bar, real-time transfer speed (`MB/s` or `KB/s`), estimated remaining time (`ETA`), percentage calculation, and operational phase labels.
 - **Integrated Diagnostic Console**: Expandable multi-line activity log providing transparent feedback, deduplicated post-processing steps, and error diagnostics.
-- **Intelligent Dependency Detection**: Automatically inspects system PATH, WinGet directories, and local `./bin` folders for `FFmpeg` and `Deno`. Displays a helpful warning banner and guide if absent.
+- **Live Playlist Progress Counter**: Clearly displays current position and total songs (e.g. `Playlist: 2 of 30 (2/30)`), both in a dedicated UI badge and detailed activity log.
+- **Error-Resilient Playlist Resumption**: If an individual song fails (e.g. unavailable/private), TrackPull automatically skips it or provides a prominent **"CONTINUE DOWNLOAD"** button to resume remaining tracks without re-downloading previously completed tracks (via `.trackpull_archive.txt`).
+- **Dynamic Bilingual Support**: Instant on-the-fly switching between Ukrainian and English with human-friendly, non-technical labels.
 - **Safe Cancellation**: Gracefully stop active downloads at any time without corrupting previously completed tracks.
 
 ---
@@ -216,8 +218,9 @@ TrackPull/
 - **Автоматичні метадані та обкладинки**: Запис ID3-тегів (виконавець, назва пісні, альбом) та вбудовування оригінальних обкладинок високої роздільної здатності.
 - **Багатопоточність без зависань (Multi-threading)**: Усі ресурсомісткі операції завантаження й перекодування виконуються у фоновому потоці (`threading.Thread`), забезпечуючи 100% плавний та чуйний інтерфейс.
 - **Плавний Progress Bar та живі метрики**: Відображення відсотка завантаження, поточної швидкості передачі даних (`MB/s` або `KB/s`), залишкового часу (`ETA`) та поточної стадії постобробки.
-- **Детальний вбудований журнал**: Багаторядкове консольне поле подій із часовими мітками, детальними повідомленнями та зрозумілим описом можливих помилок без дублювання.
-- **Автоматична перевірка FFmpeg та Deno**: Автоматичне сканування системного PATH, директорій WinGet та локальної папки `./bin`. У разі відсутності програма показує інформаційний банер із покроковою інструкцією.
+- **Наочний лічильник треків у плейлисті**: Чітке відображення поточної та загальної кількості пісень (наприклад, `Плейлист: 2 з 30 (2/30)`) як у виділеному бейджику інтерфейсу, так і в журналі дій.
+- **Відновлення завантаження після помилки (Продовжити)**: Якщо окремий файл не вдалося завантажити (видалене або приватне відео), з'являється зелена кнопка **«ПРОДОВЖИТИ ЗАВАНТАЖЕННЯ»**, яка пропускає збійний трек і продовжує завантаження решти пісень без повторного завантаження вже готових (через `.trackpull_archive.txt`).
+- **Повна двомовність (UA / EN)**: Миттєве перемикання між українською та англійською мовами без перезапуску та зрозумілі назви функцій без складної термінології.
 - **Безпечна зупинка операцій**: Кнопка «Зупинити» дозволяє користувачеві в будь-який момент скасувати процес без пошкодження вже збережених файлів.
 
 ---
