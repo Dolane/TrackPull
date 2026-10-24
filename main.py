@@ -1,10 +1,13 @@
 """
 TrackPull - Modern Music & Playlist Downloader for Windows.
 
-This application provides a graphical interface built with CustomTkinter
-for downloading high-quality audio tracks and playlists using yt-dlp.
-All processing runs asynchronously in background worker threads to keep
-the user interface fluid, ultra-fast, and responsive.
+Version: 1.0.1
+Features:
+- Dual-column responsive studio layout
+- Full bilingual localization (Ukrainian & English) with dynamic switching
+- Human-friendly, non-technical feature labels
+- Hardware-accelerated multi-threaded yt-dlp engine with Deno & FFmpeg
+- Zero tearing / glitch-free native Windows experience
 
 Author: TrackPull Open Source Maintainers
 License: MIT
@@ -43,6 +46,158 @@ except ImportError as engine_import_error:
 
 
 # ============================================================================
+# LOCALIZATION (i18n) DICTIONARY: UKRAINIAN & ENGLISH
+# ============================================================================
+
+TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "UA": {
+        "app_title": "TrackPull",
+        "app_subtitle": "Швидкий та зручний завантажувач музики",
+        "theme_label": "Тема:",
+        "lang_label": "Мова:",
+        "theme_dark": "Темна",
+        "theme_light": "Світла",
+        "theme_system": "Системна",
+        "ffmpeg_ready": "FFmpeg: Готовий",
+        "ffmpeg_missing": "FFmpeg: Відсутній (клікніть)",
+        "card_format": "Формат та якість звуку",
+        "quality_title": "Якість звуку:",
+        "quality_lossless": "Якість: Без втрат (Lossless)",
+        "bitrate_320": "320 kbps (Найвища якість)",
+        "bitrate_256": "256 kbps (Висока якість)",
+        "bitrate_192": "192 kbps (Середня якість)",
+        "bitrate_128": "128 kbps (Економія місця)",
+        "card_options": "Додаткові зручності",
+        "switch_playlist": "Завантажити весь плейлист",
+        "switch_metadata": "Додати автора та назву пісні",
+        "switch_thumbnail": "Зберегти обкладинку треку",
+        "card_directory": "Куди зберігати музику",
+        "btn_browse": "Обрати папку...",
+        "btn_open_folder": "Відкрити папку",
+        "url_title": "Посилання на пісню або плейлист:",
+        "url_placeholder": "Вставте посилання з YouTube, SoundCloud тощо...",
+        "btn_paste": "Вставити",
+        "btn_clear": "✕",
+        "btn_download": "ЗАВАНТАЖИТИ МУЗИКУ",
+        "btn_downloading": "ЗАВАНТАЖЕННЯ...",
+        "btn_cancel": "Зупинити",
+        "btn_stopping": "Зупинка...",
+        "status_ready": "Статус: Готовий до роботи",
+        "status_preparing": "Статус: Підготовка до завантаження...",
+        "status_extracting": "Статус: Пошук та отримання треку...",
+        "status_converting": "Статус: Перетворення звуку (FFmpeg)...",
+        "status_embedding_thumb": "Статус: Додавання обкладинки...",
+        "status_embedding_meta": "Статус: Запис назви та автора...",
+        "status_completed": "Статус: Завершено успішно!",
+        "status_cancelled": "Статус: Завантаження зупинено",
+        "status_error": "Статус: Помилка завантаження",
+        "speed_label": "Швидкість: ",
+        "eta_label": "Час: ",
+        "card_terminal": "Хід завантаження (журнал):",
+        "btn_clear_log": "Очистити",
+        "log_started": "=== TrackPull v1.0.1 успішно запущено. ===",
+        "log_ffmpeg_found": "FFmpeg готовий до конвертації аудіо.",
+        "log_deno_active": "Прискорювач YouTube (Deno) активний.",
+        "msg_empty_url_title": "Порожнє посилання",
+        "msg_empty_url_body": "Будь ласка, вставте посилання на пісню або плейлист у поле вводу.",
+        "msg_invalid_url_title": "Некоректне посилання",
+        "msg_invalid_url_body": "Посилання має починатися з http:// або https://",
+        "msg_success_title": "Успіх",
+        "msg_success_body": "Музику успішно завантажено та збережено!",
+        "msg_folder_not_found_title": "Папка не знайдена",
+        "msg_folder_not_found_body": "Вказана папка не існує на комп'ютері:\n",
+        "msg_ffmpeg_missing_title": "FFmpeg не знайдено",
+        "msg_ffmpeg_missing_body": "FFmpeg не знайдено. Без нього неможливо перетворити звук у вибраний формат та зберегти обкладинку.\n\nПродовжити без нього?",
+        "dialog_ffmpeg_title": "Що таке FFmpeg та для чого він потрібен",
+        "dialog_ffmpeg_header": "Що означає 'FFmpeg: Готовий' і для чого він потрібен:",
+        "dialog_ffmpeg_content": (
+            "FFmpeg — це головний мультимедійний двигун програми.\n\n"
+            "YouTube та інші сайти транслюють музику у специфічних веб-форматах (наприклад, .webm). "
+            "FFmpeg автоматично:\n"
+            "1. Перетворює вихідний потік у звичний MP3, M4A, FLAC або WAV для прослуховування на будь-якому пристрої чи в машині.\n"
+            "2. 'Вшиває' обкладинку альбому прямо всередину аудіофайлу.\n"
+            "3. Записує ім'я виконавця та назву треку (теги).\n\n"
+            "Зелений напис 'FFmpeg: Готовий' означає, що двигун виявлено на вашому комп'ютері (у папці bin/ або в системі) "
+            "і всі функції працюватимуть на 100%!"
+        ),
+        "btn_close": "Зрозуміло, закрити",
+    },
+    "EN": {
+        "app_title": "TrackPull",
+        "app_subtitle": "Fast & intuitive music and playlist downloader",
+        "theme_label": "Theme:",
+        "lang_label": "Language:",
+        "theme_dark": "Dark",
+        "theme_light": "Light",
+        "theme_system": "System",
+        "ffmpeg_ready": "FFmpeg: Ready",
+        "ffmpeg_missing": "FFmpeg: Missing (Click)",
+        "card_format": "Audio Format & Quality",
+        "quality_title": "Sound Quality:",
+        "quality_lossless": "Quality: Lossless (No Quality Loss)",
+        "bitrate_320": "320 kbps (Studio Master)",
+        "bitrate_256": "256 kbps (High Quality)",
+        "bitrate_192": "192 kbps (Standard Quality)",
+        "bitrate_128": "128 kbps (Compact / Space Saver)",
+        "card_options": "Download Features",
+        "switch_playlist": "Download entire playlist",
+        "switch_metadata": "Save song title & artist (Tags)",
+        "switch_thumbnail": "Save album cover art",
+        "card_directory": "Save Location",
+        "btn_browse": "Browse folder...",
+        "btn_open_folder": "Open folder",
+        "url_title": "Song or playlist link:",
+        "url_placeholder": "Paste link from YouTube, SoundCloud, YouTube Music...",
+        "btn_paste": "Paste",
+        "btn_clear": "✕",
+        "btn_download": "DOWNLOAD MUSIC",
+        "btn_downloading": "DOWNLOADING...",
+        "btn_cancel": "Cancel",
+        "btn_stopping": "Stopping...",
+        "status_ready": "Status: Ready to download",
+        "status_preparing": "Status: Preparing download...",
+        "status_extracting": "Status: Fetching song details...",
+        "status_converting": "Status: Converting audio (FFmpeg)...",
+        "status_embedding_thumb": "Status: Embedding cover art...",
+        "status_embedding_meta": "Status: Writing song tags...",
+        "status_completed": "Status: Download completed!",
+        "status_cancelled": "Status: Download stopped",
+        "status_error": "Status: Download error",
+        "speed_label": "Speed: ",
+        "eta_label": "ETA: ",
+        "card_terminal": "Activity Log (Console):",
+        "btn_clear_log": "Clear",
+        "log_started": "=== TrackPull v1.0.1 ready. ===",
+        "log_ffmpeg_found": "FFmpeg is ready for audio processing.",
+        "log_deno_active": "YouTube accelerator (Deno) is active.",
+        "msg_empty_url_title": "Empty Link",
+        "msg_empty_url_body": "Please paste a link to a song or playlist in the input field.",
+        "msg_invalid_url_title": "Invalid Link",
+        "msg_invalid_url_body": "The link must start with http:// or https://",
+        "msg_success_title": "Success",
+        "msg_success_body": "Audio successfully downloaded and saved!",
+        "msg_folder_not_found_title": "Folder Not Found",
+        "msg_folder_not_found_body": "Specified folder does not exist:\n",
+        "msg_ffmpeg_missing_title": "FFmpeg Missing",
+        "msg_ffmpeg_missing_body": "FFmpeg is missing. Without it, audio conversion and cover art embedding will not work.\n\nContinue anyway?",
+        "dialog_ffmpeg_title": "What is FFmpeg & Why is it needed",
+        "dialog_ffmpeg_header": "What 'FFmpeg: Ready' means and why it's there:",
+        "dialog_ffmpeg_content": (
+            "FFmpeg is the core multimedia conversion engine used by TrackPull.\n\n"
+            "Websites like YouTube stream audio in proprietary formats (.webm or raw .m4a). "
+            "FFmpeg automatically:\n"
+            "1. Converts the stream into standard MP3, M4A, FLAC, or WAV for playback in cars, phones, and music players.\n"
+            "2. Embeds high-resolution cover art directly into the audio file.\n"
+            "3. Writes the song title, artist name, and album metadata.\n\n"
+            "The green 'FFmpeg: Ready' badge confirms that FFmpeg was found (in bin/ or system PATH) "
+            "and all conversions will run with 100% fidelity!"
+        ),
+        "btn_close": "Got it, close",
+    }
+}
+
+
+# ============================================================================
 # CONFIGURATION AND DATA STRUCTURES
 # ============================================================================
 
@@ -59,34 +214,22 @@ class DownloadOptions:
 
 
 class SystemDependencyChecker:
-    """
-    Utility class for inspecting, discovering, and configuring external binaries
-    (FFmpeg, FFprobe, Deno JS runtime) for accelerated extraction and conversion.
-    """
+    """Utility class for inspecting external binaries (FFmpeg, Deno)."""
 
     @staticmethod
     def get_application_root() -> str:
-        """
-        Determines the base application root directory.
-        Handles both standard Python execution and PyInstaller frozen executable contexts.
-        """
         if getattr(sys, "frozen", False):
             return os.path.dirname(sys.executable)
         return os.path.dirname(os.path.abspath(__file__))
 
     @classmethod
     def initialize_runtime_environment(cls) -> None:
-        """
-        Prepend local application bin directory and WinGet package folders to PATH.
-        Ensures yt-dlp automatically detects FFmpeg and Deno without system restarts.
-        """
         base_dir: str = cls.get_application_root()
         candidate_paths: List[str] = [
             os.path.join(base_dir, "bin"),
             base_dir,
         ]
 
-        # Scan user WinGet package directories for installed FFmpeg and Deno
         local_app_data = os.environ.get("LOCALAPPDATA", "")
         if local_app_data:
             winget_root = os.path.join(local_app_data, "Microsoft", "WinGet", "Packages")
@@ -97,7 +240,6 @@ class SystemDependencyChecker:
                         if "ffmpeg" in lower_name or "deno" in lower_name:
                             full_pkg_dir = os.path.join(winget_root, folder_name)
                             candidate_paths.append(full_pkg_dir)
-                            # Also search one level deeper for bin subfolders
                             for root, dirs, _ in os.walk(full_pkg_dir):
                                 if os.path.basename(root).lower() == "bin":
                                     candidate_paths.append(root)
@@ -114,18 +256,10 @@ class SystemDependencyChecker:
 
     @classmethod
     def locate_ffmpeg(cls) -> tuple[bool, str]:
-        """
-        Locates the FFmpeg binary in system PATH or local application directories.
-
-        Returns:
-            tuple[bool, str]: (is_available, executable_path_or_empty_string)
-        """
-        # 1. Inspect current PATH (which now includes runtime-injected paths)
         system_path: Optional[str] = shutil.which("ffmpeg")
         if system_path:
             return True, system_path
 
-        # 2. Inspect application directory and local ./bin directory explicitly
         base_directory: str = cls.get_application_root()
         local_candidates: List[str] = [
             os.path.join(base_directory, "bin", "ffmpeg.exe"),
@@ -141,12 +275,6 @@ class SystemDependencyChecker:
 
     @classmethod
     def locate_deno(cls) -> tuple[bool, str]:
-        """
-        Locates the Deno JavaScript runtime binary for accelerated YouTube signature solving.
-
-        Returns:
-            tuple[bool, str]: (is_available, executable_path_or_empty_string)
-        """
         deno_system = shutil.which("deno")
         if deno_system:
             return True, deno_system
@@ -164,10 +292,6 @@ class SystemDependencyChecker:
 
     @staticmethod
     def get_default_download_directory() -> str:
-        """
-        Determines the most appropriate default destination directory on Windows.
-        Prioritizes the user's standard Music folder, falling back to Downloads or Home.
-        """
         user_home: str = os.path.expanduser("~")
         music_folder: str = os.path.join(user_home, "Music")
         if os.path.isdir(music_folder):
@@ -185,59 +309,37 @@ class SystemDependencyChecker:
 # ============================================================================
 
 class YTDLPMessageLogger:
-    """
-    Custom logger redirecting yt-dlp internal messages to thread-safe
-    callbacks for real-time visualization in the user interface.
-    """
+    """Custom logger redirecting yt-dlp messages to the UI console."""
 
     def __init__(self, dispatch_log: Callable[[str, str], None]) -> None:
-        """
-        Initialize the logger.
-
-        Args:
-            dispatch_log: Thread-safe callable accepting (message: str, level: str).
-        """
         self._dispatch_log: Callable[[str, str], None] = dispatch_log
 
     def debug(self, message: str) -> None:
-        """Handle debug messages, filtering out repetitive percentage lines."""
         clean_msg: str = message.strip()
         if not clean_msg:
             return
 
-        # Suppress noisy percentage lines handled by the animated progress bar
         if "[download]" in clean_msg and "%" in clean_msg:
             return
 
-        # Suppress redundant postprocessor notices handled by postprocessor hook
         if clean_msg.startswith(("[ExtractAudio] Destination:", "[Metadata] Adding metadata", "[Thumbnails]")):
             self._dispatch_log(clean_msg, "INFO")
         elif clean_msg.startswith("[download] Destination:"):
             dest_name = clean_msg.replace("[download] Destination:", "").strip()
-            self._dispatch_log(f"Завантаження файлу: {os.path.basename(dest_name)}", "INFO")
+            self._dispatch_log(f"Файл: {os.path.basename(dest_name)}", "INFO")
 
     def info(self, message: str) -> None:
-        """Handle standard informational messages."""
         clean_msg: str = message.strip()
         if clean_msg and not ("%" in clean_msg and "[download]" in clean_msg):
             self._dispatch_log(clean_msg, "INFO")
 
     def warning(self, message: str) -> None:
-        """Handle non-fatal warning messages."""
         clean_msg: str = message.strip()
         if clean_msg:
-            # Clean up JS runtime warning if deno is active or suppress harmless deprecations
-            if "No supported JavaScript runtime could be found" in clean_msg:
-                self._dispatch_log(
-                    "Попередження: Відсутній рушій JavaScript (Deno/Node). "
-                    "Встановлення Deno прискорює аналіз плейлистів.",
-                    "WARNING"
-                )
-            else:
+            if "No supported JavaScript runtime could be found" not in clean_msg:
                 self._dispatch_log(f"Увага: {clean_msg}", "WARNING")
 
     def error(self, message: str) -> None:
-        """Handle fatal error messages."""
         clean_msg: str = message.strip()
         if clean_msg:
             self._dispatch_log(f"Помилка: {clean_msg}", "ERROR")
@@ -248,10 +350,7 @@ class YTDLPMessageLogger:
 # ============================================================================
 
 class AudioDownloadWorker(threading.Thread):
-    """
-    Dedicated worker thread responsible for executing yt-dlp operations
-    with parallel fragment streaming and hardware-optimized postprocessing.
-    """
+    """Worker thread running yt-dlp asynchronously."""
 
     def __init__(
         self,
@@ -263,7 +362,6 @@ class AudioDownloadWorker(threading.Thread):
         on_log: Callable[[str, str], None],
         on_complete: Callable[[bool, str, bool], None],
     ) -> None:
-        """Initialize worker thread with performance configurations."""
         super().__init__(name="AudioDownloadWorkerThread", daemon=True)
         self.options: DownloadOptions = options
         self.ffmpeg_location: str = ffmpeg_location
@@ -277,11 +375,9 @@ class AudioDownloadWorker(threading.Thread):
         self._logged_postprocessors: Set[str] = set()
 
     def request_cancellation(self) -> None:
-        """Signals the worker to abort active downloads cleanly."""
         self._cancellation_requested.set()
 
     def _progress_hook(self, payload: Dict[str, Any]) -> None:
-        """Internal hook invoked periodically by yt-dlp during media transmission."""
         if self._cancellation_requested.is_set():
             raise yt_dlp.utils.DownloadCancelled("Завантаження зупинено користувачем.")
 
@@ -323,10 +419,9 @@ class AudioDownloadWorker(threading.Thread):
 
         elif status == "finished":
             filename = os.path.basename(payload.get("filename", ""))
-            self.on_phase_change(f"Аудіопотік отримано ({filename}). Конвертація...")
+            self.on_phase_change(f"Аудіопотік отримано ({filename}). Обробка...")
 
     def _postprocessor_hook(self, payload: Dict[str, Any]) -> None:
-        """Hook triggered during FFmpeg conversion and tag/thumbnail embedding."""
         if self._cancellation_requested.is_set():
             raise yt_dlp.utils.DownloadCancelled("Завантаження зупинено користувачем.")
 
@@ -335,34 +430,32 @@ class AudioDownloadWorker(threading.Thread):
 
         if status == "started":
             if pp_name == "ExtractAudio":
-                self.on_phase_change("Конвертація аудіо (FFmpeg)...")
+                self.on_phase_change("Перетворення звуку (FFmpeg)...")
             elif pp_name == "EmbedThumbnail":
-                self.on_phase_change("Вбудовування обкладинки...")
+                self.on_phase_change("Збереження обкладинки треку...")
             elif pp_name == "Metadata":
-                self.on_phase_change("Запис ID3-тегів...")
+                self.on_phase_change("Запис автора та назви пісні...")
             else:
                 self.on_phase_change(f"Обробка: {pp_name}...")
         elif status == "finished":
-            # Avoid duplicate log outputs per track
             item_key = f"{pp_name}_{payload.get('info_dict', {}).get('id', '')}"
             if item_key not in self._logged_postprocessors:
                 self._logged_postprocessors.add(item_key)
                 if pp_name == "ExtractAudio":
-                    self.on_log("Конвертацію аудіо у вибраний формат завершено.", "INFO")
+                    self.on_log("Перетворення звуку завершено.", "INFO")
                 elif pp_name == "EmbedThumbnail":
-                    self.on_log("Обкладинку треку успішно вбудовано.", "INFO")
+                    self.on_log("Обкладинку треку успішно збережено.", "INFO")
                 elif pp_name == "Metadata":
-                    self.on_log("Метадані треку успішно записано.", "INFO")
+                    self.on_log("Дані автора та назву пісні записано.", "INFO")
 
     def run(self) -> None:
-        """Main execution loop for downloading and converting media."""
-        self.on_log(f"Початок аналізу URL: {self.options.url}", "INFO")
-        self.on_phase_change("Отримання списку треків та аудіопотоків...")
+        self.on_log(f"Початок обробки: {self.options.url}", "INFO")
+        self.on_phase_change("Отримання інформації про аудіо...")
 
         try:
             os.makedirs(self.options.output_directory, exist_ok=True)
         except OSError as folder_err:
-            error_message = f"Не вдалося створити робочу папку: {folder_err}"
+            error_message = f"Не вдалося створити папку для збереження: {folder_err}"
             self.on_log(error_message, "ERROR")
             self.on_complete(False, error_message, False)
             return
@@ -407,7 +500,6 @@ class AudioDownloadWorker(threading.Thread):
                 "already_have_thumbnail": False,
             })
 
-        # High-performance yt-dlp configurations
         ydl_opts: Dict[str, Any] = {
             "format": "bestaudio/best",
             "outtmpl": output_template,
@@ -415,13 +507,12 @@ class AudioDownloadWorker(threading.Thread):
             "restrictfilenames": False,
             "noplaylist": not self.options.is_playlist,
             "ignoreerrors": self.options.is_playlist,
-            # Acceleration options:
-            "concurrent_fragment_downloads": 8,  # Download DASH/HLS segments in 8 parallel streams
-            "buffersize": 1024 * 64,             # 64 KB network stream buffer
-            "http_chunk_size": 10485760,         # 10 MB chunk size for maximum throughput
+            "concurrent_fragment_downloads": 8,
+            "buffersize": 1024 * 64,
+            "http_chunk_size": 10485760,
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["android", "web"],  # Use fast direct streams, avoiding throttling
+                    "player_client": ["android", "web"],
                     "skip": ["translated_subs"],
                 }
             },
@@ -461,60 +552,64 @@ class AudioDownloadWorker(threading.Thread):
             raw_err: str = str(download_err)
             if "ffmpeg" in raw_err.lower():
                 friendly_err: str = (
-                    "Помилка FFmpeg: Не знайдено FFmpeg для конвертації аудіо або запису тегів. "
+                    "Не знайдено FFmpeg для конвертації звуку або запису тегів. "
                     "Будь ласка, встановіть FFmpeg."
                 )
             elif "unsupported url" in raw_err.lower():
-                friendly_err = "Непідтримуване або некоректне URL-посилання на трек чи плейлист."
+                friendly_err = "Непідтримуване або некоректне посилання на пісню чи плейлист."
             elif "private video" in raw_err.lower() or "sign in" in raw_err.lower():
-                friendly_err = "Цей трек або плейлист є приватним чи вимагає авторизації в акаунті."
+                friendly_err = "Цей трек є приватним чи вимагає авторизації в акаунті."
             else:
-                friendly_err = f"Помилка завантаження yt-dlp: {raw_err}"
+                friendly_err = f"Помилка завантаження: {raw_err}"
 
             self.on_log(friendly_err, "ERROR")
             self.on_complete(False, friendly_err, False)
 
         except Exception as unexpected_err:
-            error_msg: str = f"Непередбачена помилка виконання: {unexpected_err}"
+            error_msg: str = f"Непередбачена помилка: {unexpected_err}"
             self.on_log(error_msg, "ERROR")
             self.on_complete(False, error_msg, False)
 
 
 # ============================================================================
-# MAIN APPLICATION INTERFACE
+# MAIN APPLICATION INTERFACE (v1.0.1 BILINGUAL PRO STUDIO)
 # ============================================================================
 
 class TrackPullApp(ctk.CTk):
-    """
-    Main application window implementing an adaptive, centered grid architecture.
-    Provides instant resize performance and symmetrical aesthetics in all screen modes.
-    """
+    """Studio-grade bilingual Windows downloader interface."""
 
     APP_TITLE: str = "TrackPull"
-    APP_VERSION: str = "1.1.0"
-    DEFAULT_WINDOW_SIZE: str = "760x840"
-    MIN_WINDOW_WIDTH: int = 720
-    MIN_WINDOW_HEIGHT: int = 760
+    APP_VERSION: str = "v1.0.1"
+    DEFAULT_WINDOW_SIZE: str = "960x720"
+    MIN_WINDOW_WIDTH: int = 860
+    MIN_WINDOW_HEIGHT: int = 660
+
+    # Color tokens for solid surfaces
+    BG_ROOT_COLOR = ("#F1F3F9", "#0C0D11")
+    BG_CARD_COLOR = ("#FFFFFF", "#16171E")
+    BORDER_CARD_COLOR = ("#E2E6EF", "#232530")
+    TEXT_PRIMARY = ("#0F172A", "#F8FAFC")
+    TEXT_SECONDARY = ("#64748B", "#94A3B8")
+    ACCENT_PRIMARY = ("#2563EB", "#3B82F6")
+    ACCENT_HOVER = ("#1D4ED8", "#2563EB")
+    ACCENT_DANGER = ("#DC2626", "#EF4444")
+    ACCENT_DANGER_HOVER = ("#B91C1C", "#DC2626")
 
     FORMAT_OPTIONS: List[str] = ["MP3", "M4A", "FLAC", "WAV"]
-    BITRATE_MAPPING: Dict[str, str] = {
-        "320 kbps (Найвища якість)": "320",
-        "256 kbps (Висока якість)": "256",
-        "192 kbps (Середня якість)": "192",
-        "128 kbps (Стандартна якість)": "128",
-    }
 
     def __init__(self) -> None:
-        """Initialize the primary application state and graphical components."""
-        # Prepend binaries to PATH before launching any engine
         SystemDependencyChecker.initialize_runtime_environment()
 
         super().__init__()
 
+        # Current language state: "UA" by default
+        self.current_lang: str = "UA"
+
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
+        self.configure(fg_color=self.BG_ROOT_COLOR)
 
-        self.title(f"{self.APP_TITLE} v{self.APP_VERSION} — Завантажувач музики")
+        self.title(f"{self.APP_TITLE} {self.APP_VERSION}")
         self.geometry(self.DEFAULT_WINDOW_SIZE)
         self.minsize(self.MIN_WINDOW_WIDTH, self.MIN_WINDOW_HEIGHT)
 
@@ -522,9 +617,7 @@ class TrackPullApp(ctk.CTk):
             value=SystemDependencyChecker.get_default_download_directory()
         )
         self.audio_format_var: ctk.StringVar = ctk.StringVar(value="MP3")
-        self.audio_quality_var: ctk.StringVar = ctk.StringVar(
-            value="320 kbps (Найвища якість)"
-        )
+        self.audio_quality_var: ctk.StringVar = ctk.StringVar()
         self.playlist_var: ctk.BooleanVar = ctk.BooleanVar(value=False)
         self.metadata_var: ctk.BooleanVar = ctk.BooleanVar(value=True)
         self.thumbnail_var: ctk.BooleanVar = ctk.BooleanVar(value=True)
@@ -535,25 +628,26 @@ class TrackPullApp(ctk.CTk):
         self._deno_available: bool = False
         self._deno_location: str = ""
 
-        # Configure application icon for window titlebar and taskbar
+        # Set taskbar icon
         self._set_application_icon()
 
-        # Construct UI layout with centered responsive frame
+        # Build solid dual-column studio layout
         self._build_interface()
 
-        # Check external dependencies after initial render
+        # Initialize text in default language
+        self._apply_language(self.current_lang)
+
+        # Evaluate system dependencies after window maps
         self.after(200, self._evaluate_system_dependencies)
 
-    # ------------------------------------------------------------------------
-    # THREAD-SAFE UI DISPATCHERS
-    # ------------------------------------------------------------------------
+    def _t(self, key: str) -> str:
+        """Retrieves translated string for the current active language."""
+        return TRANSLATIONS.get(self.current_lang, {}).get(key, key)
 
     def dispatch_to_ui(self, function: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
-        """Safely schedules a function execution onto the main Tkinter UI thread."""
         self.after(0, lambda: function(*args, **kwargs))
 
     def _set_application_icon(self) -> None:
-        """Configures the titlebar and taskbar icon for Windows."""
         try:
             base_dir = SystemDependencyChecker.get_application_root()
             meipass_dir = getattr(sys, "_MEIPASS", base_dir)
@@ -579,554 +673,670 @@ class TrackPullApp(ctk.CTk):
                     self._taskbar_icon = ImageTk.PhotoImage(pil_img)
                     self.iconphoto(False, self._taskbar_icon)
                     break
-        except Exception as icon_err:
-            logging.debug(f"Non-critical: could not load window icon: {icon_err}")
+        except Exception:
+            pass
 
     # ------------------------------------------------------------------------
-    # UI CONSTRUCTION METHODS (OPTIMIZED NON-SCROLLABLE NATIVE GRID)
+    # STUDIO DUAL-COLUMN INTERFACE ARCHITECTURE
     # ------------------------------------------------------------------------
 
     def _build_interface(self) -> None:
-        """
-        Builds the graphical interface using a 3-column centered architecture.
-        Guarantees instant resizing between windowed and fullscreen with zero lag.
-        """
-        # Outer root grid: Columns 0 & 2 are flexible spacers; Column 1 houses content
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=10, minsize=700)
-        self.grid_columnconfigure(2, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=0)  # Top Bar
+        self.grid_rowconfigure(1, weight=1)  # Content
 
-        # Main content card centered horizontally and expanding vertically
-        self.main_container = ctk.CTkFrame(self, fg_color="transparent")
-        self.main_container.grid(row=0, column=1, sticky="nsew", padx=16, pady=16)
+        # 1. Header Bar
+        self._create_header_bar(self)
 
-        # Configure container rows
-        self.main_container.grid_columnconfigure(0, weight=1)
-        self.main_container.grid_rowconfigure(6, weight=1)  # Log console row expands
+        # 2. Main Studio Body
+        self.studio_body = ctk.CTkFrame(self, fg_color=self.BG_ROOT_COLOR)
+        self.studio_body.grid(row=1, column=0, sticky="nsew", padx=16, pady=(0, 14))
+        self.studio_body.grid_columnconfigure(0, weight=0, minsize=350)
+        self.studio_body.grid_columnconfigure(1, weight=1)
+        self.studio_body.grid_rowconfigure(0, weight=1)
 
-        # 1. Header Section
-        self._create_header_frame(self.main_container)
+        # Left Column: User Settings & Options
+        self.left_sidebar = ctk.CTkFrame(self.studio_body, fg_color=self.BG_ROOT_COLOR)
+        self.left_sidebar.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        self.left_sidebar.grid_columnconfigure(0, weight=1)
 
-        # 2. Dependency Warning Banner (Hidden by default, displayed if FFmpeg missing)
-        self._create_dependency_banner(self.main_container)
+        self._create_format_card(self.left_sidebar)
+        self._create_options_card(self.left_sidebar)
+        self._create_directory_card(self.left_sidebar)
 
-        # 3. URL Input Card
-        self._create_url_card(self.main_container)
+        # Right Column: Studio Dashboard (Hero URL, Action, Metrics, Terminal)
+        self.right_panel = ctk.CTkFrame(self.studio_body, fg_color=self.BG_ROOT_COLOR)
+        self.right_panel.grid(row=0, column=1, sticky="nsew")
+        self.right_panel.grid_columnconfigure(0, weight=1)
+        self.right_panel.grid_rowconfigure(2, weight=1)
 
-        # 4. Parameters Card (Format, Quality, Metadata, Playlist)
-        self._create_parameters_card(self.main_container)
+        self._create_url_card(self.right_panel)
+        self._create_action_monitor_card(self.right_panel)
+        self._create_terminal_card(self.right_panel)
 
-        # 5. Output Directory Card
-        self._create_directory_card(self.main_container)
+    def _create_header_bar(self, parent: ctk.CTkBaseClass) -> None:
+        header = ctk.CTkFrame(
+            parent,
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
+            border_width=1,
+            border_color=self.BORDER_CARD_COLOR
+        )
+        header.grid(row=0, column=0, sticky="ew", padx=16, pady=(14, 12), ipady=4)
+        header.grid_columnconfigure(0, weight=1)
+        header.grid_columnconfigure(1, weight=0)
 
-        # 6. Action and Progress Card
-        self._create_action_progress_card(self.main_container)
+        # Left Branding
+        brand_box = ctk.CTkFrame(header, fg_color="transparent")
+        brand_box.grid(row=0, column=0, sticky="w", padx=16, pady=6)
 
-        # 7. Log Console Card (Expands cleanly on fullscreen)
-        self._create_console_card(self.main_container)
-
-    def _create_header_frame(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs the application header with branding and theme switcher."""
-        header_frame = ctk.CTkFrame(parent, corner_radius=10, fg_color=("gray90", "gray14"))
-        header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10), padx=0, ipady=4)
-        header_frame.grid_columnconfigure(0, weight=1)
-        header_frame.grid_columnconfigure(1, weight=0)
-
-        branding_box = ctk.CTkFrame(header_frame, fg_color="transparent")
-        branding_box.grid(row=0, column=0, sticky="w", padx=16, pady=6)
-
-        # Display custom minimalist icon if available
         base_dir = SystemDependencyChecker.get_application_root()
         meipass_dir = getattr(sys, "_MEIPASS", base_dir)
-        for img_dir in (base_dir, meipass_dir):
-            icon_png_path = os.path.join(img_dir, "assets", "icon.png")
-            if os.path.isfile(icon_png_path):
+        for d in (base_dir, meipass_dir):
+            icon_png = os.path.join(d, "assets", "icon.png")
+            if os.path.isfile(icon_png):
                 try:
                     from PIL import Image
-                    pil_icon = Image.open(icon_png_path)
                     self._header_logo = ctk.CTkImage(
-                        light_image=pil_icon,
-                        dark_image=pil_icon,
-                        size=(38, 38)
+                        light_image=Image.open(icon_png),
+                        dark_image=Image.open(icon_png),
+                        size=(36, 36)
                     )
-                    logo_label = ctk.CTkLabel(branding_box, image=self._header_logo, text="")
-                    logo_label.pack(side="left", padx=(0, 10))
+                    logo_lbl = ctk.CTkLabel(brand_box, image=self._header_logo, text="")
+                    logo_lbl.pack(side="left", padx=(0, 12))
                     break
                 except Exception:
                     pass
 
-        titles_box = ctk.CTkFrame(branding_box, fg_color="transparent")
-        titles_box.pack(side="left")
+        titles = ctk.CTkFrame(brand_box, fg_color="transparent")
+        titles.pack(side="left")
 
-        app_title = ctk.CTkLabel(
-            titles_box,
-            text="TrackPull",
-            font=ctk.CTkFont(family="Segoe UI", size=22, weight="bold"),
-            text_color=("gray10", "#4da6ff")
+        title_row = ctk.CTkFrame(titles, fg_color="transparent")
+        title_row.pack(anchor="w")
+
+        self.title_label = ctk.CTkLabel(
+            title_row,
+            text=self.APP_TITLE,
+            font=ctk.CTkFont(family="Segoe UI", size=20, weight="bold"),
+            text_color=self.TEXT_PRIMARY
         )
-        app_title.pack(anchor="w")
+        self.title_label.pack(side="left")
 
-        app_subtitle = ctk.CTkLabel(
-            titles_box,
-            text="Швидкий та надійний завантажувач аудіотреків і плейлистів",
+        self.version_pill = ctk.CTkLabel(
+            title_row,
+            text=self.APP_VERSION,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=("#EEF2FF", "#1E2235"),
+            text_color=("#4F46E5", "#818CF8"),
+            corner_radius=6,
+            padx=8,
+            pady=2
+        )
+        self.version_pill.pack(side="left", padx=8)
+
+        self.subtitle_label = ctk.CTkLabel(
+            titles,
+            text=self._t("app_subtitle"),
             font=ctk.CTkFont(family="Segoe UI", size=12),
-            text_color=("gray40", "gray70")
+            text_color=self.TEXT_SECONDARY
         )
-        app_subtitle.pack(anchor="w")
+        self.subtitle_label.pack(anchor="w")
 
-        theme_box = ctk.CTkFrame(header_frame, fg_color="transparent")
-        theme_box.grid(row=0, column=1, sticky="e", padx=16, pady=6)
+        # Right Controls: FFmpeg Badge, Language Selector & Theme Switcher
+        nav_controls = ctk.CTkFrame(header, fg_color="transparent")
+        nav_controls.grid(row=0, column=1, sticky="e", padx=16, pady=6)
 
-        theme_label = ctk.CTkLabel(
-            theme_box,
-            text="Тема:",
-            font=ctk.CTkFont(size=12, weight="bold")
+        self.ffmpeg_status_badge = ctk.CTkLabel(
+            nav_controls,
+            text=self._t("ffmpeg_ready"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=("#ECFDF5", "#064E3B"),
+            text_color=("#059669", "#34D399"),
+            corner_radius=6,
+            padx=10,
+            pady=4,
+            cursor="hand2"
         )
-        theme_label.pack(side="left", padx=(0, 8))
+        self.ffmpeg_status_badge.pack(side="left", padx=(0, 10))
+        self.ffmpeg_status_badge.bind("<Button-1>", lambda e: self._show_ffmpeg_instruction_dialog())
 
-        self.theme_menu = ctk.CTkOptionMenu(
-            theme_box,
-            values=["Темна", "Світла", "Системна"],
-            command=self._on_theme_changed,
+        # Language Switcher
+        self.lang_lbl = ctk.CTkLabel(
+            nav_controls,
+            text=self._t("lang_label"),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=self.TEXT_SECONDARY
+        )
+        self.lang_lbl.pack(side="left", padx=(0, 4))
+
+        self.lang_menu = ctk.CTkOptionMenu(
+            nav_controls,
+            values=["Українська", "English"],
+            command=self._on_language_changed,
             width=110,
             height=28
         )
-        self.theme_menu.set("Темна")
+        self.lang_menu.set("Українська")
+        self.lang_menu.pack(side="left", padx=(0, 10))
+
+        # Theme Switcher
+        self.theme_lbl = ctk.CTkLabel(
+            nav_controls,
+            text=self._t("theme_label"),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=self.TEXT_SECONDARY
+        )
+        self.theme_lbl.pack(side="left", padx=(0, 4))
+
+        self.theme_menu = ctk.CTkOptionMenu(
+            nav_controls,
+            values=[self._t("theme_dark"), self._t("theme_light"), self._t("theme_system")],
+            command=self._on_theme_changed,
+            width=100,
+            height=28
+        )
+        self.theme_menu.set(self._t("theme_dark"))
         self.theme_menu.pack(side="left")
 
-    def _create_dependency_banner(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs a dismissible alert banner displayed when FFmpeg is not found."""
-        self.dependency_banner = ctk.CTkFrame(
+    # ------------------------------------------------------------------------
+    # LEFT COLUMN: CONFIGURATION CARDS
+    # ------------------------------------------------------------------------
+
+    def _create_format_card(self, parent: ctk.CTkBaseClass) -> None:
+        card = ctk.CTkFrame(
             parent,
-            corner_radius=10,
-            fg_color=("#fff3cd", "#332701"),
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
             border_width=1,
-            border_color=("#ffeeba", "#664d03")
+            border_color=self.BORDER_CARD_COLOR
         )
-        self.dependency_banner.grid_columnconfigure(1, weight=1)
+        card.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        card.grid_columnconfigure(0, weight=1)
 
-        warning_icon = ctk.CTkLabel(
-            self.dependency_banner,
-            text="⚠️",
-            font=ctk.CTkFont(size=20)
+        self.format_card_title = ctk.CTkLabel(
+            card,
+            text=self._t("card_format"),
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color=self.TEXT_PRIMARY
         )
-        warning_icon.grid(row=0, column=0, padx=(14, 8), pady=8, sticky="w")
+        self.format_card_title.grid(row=0, column=0, sticky="w", padx=16, pady=(12, 6))
 
-        self.dependency_text = ctk.CTkLabel(
-            self.dependency_banner,
-            text=(
-                "Увага: FFmpeg не знайдено в системі! Для конвертації у MP3/FLAC, "
-                "запису ID3-тегів та вбудовування обкладинок потрібен FFmpeg."
-            ),
+        self.format_segmented = ctk.CTkSegmentedButton(
+            card,
+            values=self.FORMAT_OPTIONS,
+            command=self._on_format_changed,
+            height=34,
+            font=ctk.CTkFont(size=12, weight="bold")
+        )
+        self.format_segmented.set("MP3")
+        self.format_segmented.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 10))
+
+        self.quality_title = ctk.CTkLabel(
+            card,
+            text=self._t("quality_title"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=self.TEXT_SECONDARY
+        )
+        self.quality_title.grid(row=2, column=0, sticky="w", padx=16, pady=(0, 4))
+
+        self.quality_menu = ctk.CTkOptionMenu(
+            card,
+            values=[
+                self._t("bitrate_320"),
+                self._t("bitrate_256"),
+                self._t("bitrate_192"),
+                self._t("bitrate_128")
+            ],
+            variable=self.audio_quality_var,
+            height=32
+        )
+        self.quality_menu.grid(row=3, column=0, sticky="ew", padx=14, pady=(0, 14))
+
+    def _create_options_card(self, parent: ctk.CTkBaseClass) -> None:
+        card = ctk.CTkFrame(
+            parent,
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
+            border_width=1,
+            border_color=self.BORDER_CARD_COLOR
+        )
+        card.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+        card.grid_columnconfigure(0, weight=1)
+
+        self.options_card_title = ctk.CTkLabel(
+            card,
+            text=self._t("card_options"),
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color=self.TEXT_PRIMARY
+        )
+        self.options_card_title.grid(row=0, column=0, sticky="w", padx=16, pady=(12, 8))
+
+        switches_box = ctk.CTkFrame(card, fg_color="transparent")
+        switches_box.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 14))
+
+        self.playlist_switch = ctk.CTkSwitch(
+            switches_box,
+            text=self._t("switch_playlist"),
+            variable=self.playlist_var,
+            font=ctk.CTkFont(size=12, weight="bold")
+        )
+        self.playlist_switch.pack(anchor="w", pady=(0, 8))
+
+        self.metadata_switch = ctk.CTkSwitch(
+            switches_box,
+            text=self._t("switch_metadata"),
+            variable=self.metadata_var,
+            font=ctk.CTkFont(size=12, weight="bold")
+        )
+        self.metadata_switch.pack(anchor="w", pady=(0, 8))
+
+        self.thumbnail_switch = ctk.CTkSwitch(
+            switches_box,
+            text=self._t("switch_thumbnail"),
+            variable=self.thumbnail_var,
+            font=ctk.CTkFont(size=12, weight="bold")
+        )
+        self.thumbnail_switch.pack(anchor="w")
+
+    def _create_directory_card(self, parent: ctk.CTkBaseClass) -> None:
+        card = ctk.CTkFrame(
+            parent,
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
+            border_width=1,
+            border_color=self.BORDER_CARD_COLOR
+        )
+        card.grid(row=2, column=0, sticky="ew")
+        card.grid_columnconfigure(0, weight=1)
+
+        self.dir_card_title = ctk.CTkLabel(
+            card,
+            text=self._t("card_directory"),
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color=self.TEXT_PRIMARY
+        )
+        self.dir_card_title.grid(row=0, column=0, sticky="w", padx=16, pady=(12, 6))
+
+        self.dir_entry = ctk.CTkEntry(
+            card,
+            textvariable=self.download_directory_var,
+            height=34,
+            font=ctk.CTkFont(size=11)
+        )
+        self.dir_entry.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 10))
+
+        btn_row = ctk.CTkFrame(card, fg_color="transparent")
+        btn_row.grid(row=2, column=0, sticky="ew", padx=14, pady=(0, 14))
+        btn_row.grid_columnconfigure(0, weight=1)
+        btn_row.grid_columnconfigure(1, weight=1)
+
+        self.browse_btn = ctk.CTkButton(
+            btn_row,
+            text=self._t("btn_browse"),
+            height=32,
             font=ctk.CTkFont(size=12),
-            text_color=("#856404", "#ffda6a"),
-            justify="left"
+            command=self._browse_directory
         )
-        self.dependency_text.grid(row=0, column=1, padx=4, pady=8, sticky="ew")
+        self.browse_btn.grid(row=0, column=0, sticky="ew", padx=(0, 6))
 
-        btn_box = ctk.CTkFrame(self.dependency_banner, fg_color="transparent")
-        btn_box.grid(row=0, column=2, padx=(8, 14), pady=8, sticky="e")
-
-        help_btn = ctk.CTkButton(
-            btn_box,
-            text="Як встановити?",
-            width=110,
-            height=28,
-            fg_color=("#d39e00", "#ffc107"),
-            text_color=("black", "black"),
-            hover_color=("#b58500", "#e0a800"),
-            command=self._show_ffmpeg_instruction_dialog
+        self.open_btn = ctk.CTkButton(
+            btn_row,
+            text=self._t("btn_open_folder"),
+            height=32,
+            font=ctk.CTkFont(size=12),
+            fg_color=("gray75", "gray25"),
+            hover_color=("gray65", "gray35"),
+            command=self._open_directory_in_explorer
         )
-        help_btn.pack(side="left", padx=4)
+        self.open_btn.grid(row=0, column=1, sticky="ew")
 
-        recheck_btn = ctk.CTkButton(
-            btn_box,
-            text="Перевірити",
-            width=90,
-            height=28,
-            fg_color=("gray60", "gray30"),
-            command=self._evaluate_system_dependencies
-        )
-        recheck_btn.pack(side="left", padx=4)
+    # ------------------------------------------------------------------------
+    # RIGHT COLUMN: ACTION STUDIO, MONITOR & TERMINAL
+    # ------------------------------------------------------------------------
 
     def _create_url_card(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs the URL input card with clipboard and clear action buttons."""
-        url_frame = ctk.CTkFrame(parent, corner_radius=10, fg_color=("gray95", "gray17"))
-        url_frame.grid(row=2, column=0, sticky="ew", pady=(0, 10), padx=0)
-        url_frame.grid_columnconfigure(0, weight=1)
-
-        card_title = ctk.CTkLabel(
-            url_frame,
-            text="🔗 Посилання на аудіотрек або плейлист:",
-            font=ctk.CTkFont(size=13, weight="bold")
+        card = ctk.CTkFrame(
+            parent,
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
+            border_width=1,
+            border_color=self.BORDER_CARD_COLOR
         )
-        card_title.grid(row=0, column=0, sticky="w", padx=16, pady=(10, 6))
+        card.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        card.grid_columnconfigure(0, weight=1)
 
-        input_row = ctk.CTkFrame(url_frame, fg_color="transparent")
-        input_row.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 12))
-        input_row.grid_columnconfigure(0, weight=1)
+        self.url_card_title = ctk.CTkLabel(
+            card,
+            text=self._t("url_title"),
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color=self.TEXT_PRIMARY
+        )
+        self.url_card_title.grid(row=0, column=0, sticky="w", padx=16, pady=(12, 6))
+
+        input_box = ctk.CTkFrame(card, fg_color="transparent")
+        input_box.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 14))
+        input_box.grid_columnconfigure(0, weight=1)
 
         self.url_entry = ctk.CTkEntry(
-            input_row,
-            placeholder_text="Вставте URL з YouTube, SoundCloud, YouTube Music...",
+            input_box,
+            placeholder_text=self._t("url_placeholder"),
             height=38,
             font=ctk.CTkFont(size=13)
         )
         self.url_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
 
-        paste_button = ctk.CTkButton(
-            input_row,
-            text="📋 Вставити",
-            width=95,
+        self.paste_btn = ctk.CTkButton(
+            input_box,
+            text=self._t("btn_paste"),
+            width=90,
             height=38,
+            font=ctk.CTkFont(size=12, weight="bold"),
             command=self._paste_clipboard_url
         )
-        paste_button.grid(row=0, column=1, padx=(0, 6))
+        self.paste_btn.grid(row=0, column=1, padx=(0, 6))
 
-        clear_button = ctk.CTkButton(
-            input_row,
-            text="✖ Очистити",
-            width=85,
+        self.clear_btn = ctk.CTkButton(
+            input_box,
+            text=self._t("btn_clear"),
+            width=42,
             height=38,
-            fg_color=("gray60", "gray28"),
-            hover_color=("gray50", "gray38"),
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color=("gray75", "gray25"),
+            hover_color=("gray65", "gray35"),
             command=self._clear_url_entry
         )
-        clear_button.grid(row=0, column=2)
+        self.clear_btn.grid(row=0, column=2)
 
-    def _create_parameters_card(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs the format, bitrate, and post-processing flags configuration card."""
-        params_frame = ctk.CTkFrame(parent, corner_radius=10, fg_color=("gray95", "gray17"))
-        params_frame.grid(row=3, column=0, sticky="ew", pady=(0, 10), padx=0)
-        params_frame.grid_columnconfigure(0, weight=1)
-        params_frame.grid_columnconfigure(1, weight=1)
-
-        card_title = ctk.CTkLabel(
-            params_frame,
-            text="⚙️ Параметри конвертації та завантаження:",
-            font=ctk.CTkFont(size=13, weight="bold")
+    def _create_action_monitor_card(self, parent: ctk.CTkBaseClass) -> None:
+        card = ctk.CTkFrame(
+            parent,
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
+            border_width=1,
+            border_color=self.BORDER_CARD_COLOR
         )
-        card_title.grid(row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(10, 8))
+        card.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+        card.grid_columnconfigure(0, weight=1)
 
-        # Left Column: Format & Bitrate
-        left_col = ctk.CTkFrame(params_frame, fg_color="transparent")
-        left_col.grid(row=1, column=0, sticky="nsew", padx=(16, 12), pady=(0, 12))
-
-        format_label = ctk.CTkLabel(
-            left_col,
-            text="Аудіоформат:",
-            font=ctk.CTkFont(size=12, weight="bold")
-        )
-        format_label.pack(anchor="w", pady=(0, 4))
-
-        self.format_menu = ctk.CTkOptionMenu(
-            left_col,
-            values=self.FORMAT_OPTIONS,
-            variable=self.audio_format_var,
-            command=self._on_format_changed,
-            height=32
-        )
-        self.format_menu.pack(fill="x", pady=(0, 8))
-
-        self.quality_label = ctk.CTkLabel(
-            left_col,
-            text="Бітрейт (швидкість потоку):",
-            font=ctk.CTkFont(size=12, weight="bold")
-        )
-        self.quality_label.pack(anchor="w", pady=(0, 4))
-
-        self.quality_menu = ctk.CTkOptionMenu(
-            left_col,
-            values=list(self.BITRATE_MAPPING.keys()),
-            variable=self.audio_quality_var,
-            height=32
-        )
-        self.quality_menu.pack(fill="x")
-
-        # Right Column: Flags & Options
-        right_col = ctk.CTkFrame(params_frame, fg_color="transparent")
-        right_col.grid(row=1, column=1, sticky="nsew", padx=(12, 16), pady=(0, 12))
-
-        options_label = ctk.CTkLabel(
-            right_col,
-            text="Додаткові опції:",
-            font=ctk.CTkFont(size=12, weight="bold")
-        )
-        options_label.pack(anchor="w", pady=(0, 6))
-
-        self.playlist_checkbox = ctk.CTkCheckBox(
-            right_col,
-            text="Завантажити весь плейлист",
-            variable=self.playlist_var,
-            font=ctk.CTkFont(size=12)
-        )
-        self.playlist_checkbox.pack(anchor="w", pady=4)
-
-        self.metadata_checkbox = ctk.CTkCheckBox(
-            right_col,
-            text="Вбудувати метадані (виконавець, назва)",
-            variable=self.metadata_var,
-            font=ctk.CTkFont(size=12)
-        )
-        self.metadata_checkbox.pack(anchor="w", pady=4)
-
-        self.thumbnail_checkbox = ctk.CTkCheckBox(
-            right_col,
-            text="Вбудувати обкладинку (cover art)",
-            variable=self.thumbnail_var,
-            font=ctk.CTkFont(size=12)
-        )
-        self.thumbnail_checkbox.pack(anchor="w", pady=4)
-
-    def _create_directory_card(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs the output destination directory selection card."""
-        dir_frame = ctk.CTkFrame(parent, corner_radius=10, fg_color=("gray95", "gray17"))
-        dir_frame.grid(row=4, column=0, sticky="ew", pady=(0, 10), padx=0)
-        dir_frame.grid_columnconfigure(0, weight=1)
-
-        card_title = ctk.CTkLabel(
-            dir_frame,
-            text="📁 Папка для збереження треків:",
-            font=ctk.CTkFont(size=13, weight="bold")
-        )
-        card_title.grid(row=0, column=0, sticky="w", padx=16, pady=(10, 6))
-
-        dir_row = ctk.CTkFrame(dir_frame, fg_color="transparent")
-        dir_row.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 12))
-        dir_row.grid_columnconfigure(0, weight=1)
-
-        self.dir_entry = ctk.CTkEntry(
-            dir_row,
-            textvariable=self.download_directory_var,
-            height=36,
-            font=ctk.CTkFont(size=12)
-        )
-        self.dir_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
-
-        browse_btn = ctk.CTkButton(
-            dir_row,
-            text="📂 Огляд...",
-            width=95,
-            height=36,
-            command=self._browse_directory
-        )
-        browse_btn.grid(row=0, column=1, padx=(0, 6))
-
-        open_btn = ctk.CTkButton(
-            dir_row,
-            text="↗ Відкрити",
-            width=90,
-            height=36,
-            fg_color=("gray60", "gray28"),
-            hover_color=("gray50", "gray38"),
-            command=self._open_directory_in_explorer
-        )
-        open_btn.grid(row=0, column=2)
-
-    def _create_action_progress_card(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs the primary action trigger button, progress bar, and real-time statistics."""
-        action_frame = ctk.CTkFrame(parent, corner_radius=10, fg_color=("gray95", "gray17"))
-        action_frame.grid(row=5, column=0, sticky="ew", pady=(0, 10), padx=0)
-        action_frame.grid_columnconfigure(0, weight=1)
-
-        btn_row = ctk.CTkFrame(action_frame, fg_color="transparent")
+        btn_row = ctk.CTkFrame(card, fg_color="transparent")
         btn_row.grid(row=0, column=0, sticky="ew", padx=16, pady=(14, 10))
         btn_row.grid_columnconfigure(0, weight=4)
         btn_row.grid_columnconfigure(1, weight=1)
 
         self.download_button = ctk.CTkButton(
             btn_row,
-            text="⬇ ЗАВАНТАЖИТИ МУЗИКУ",
+            text=self._t("btn_download"),
             font=ctk.CTkFont(size=15, weight="bold"),
-            height=44,
+            height=46,
             corner_radius=8,
-            fg_color=("#1f6aa5", "#2979ff"),
-            hover_color=("#144d75", "#1c54b2"),
+            fg_color=self.ACCENT_PRIMARY,
+            hover_color=self.ACCENT_HOVER,
             command=self._on_download_button_clicked
         )
         self.download_button.grid(row=0, column=0, sticky="ew", padx=(0, 8))
 
         self.cancel_button = ctk.CTkButton(
             btn_row,
-            text="Зупинити",
+            text=self._t("btn_cancel"),
             font=ctk.CTkFont(size=13, weight="bold"),
-            height=44,
+            height=46,
             corner_radius=8,
-            fg_color=("firebrick2", "#c62828"),
-            hover_color=("firebrick3", "#8e0000"),
+            fg_color=self.ACCENT_DANGER,
+            hover_color=self.ACCENT_DANGER_HOVER,
             state="disabled",
             command=self._on_cancel_button_clicked
         )
         self.cancel_button.grid(row=0, column=1, sticky="ew")
 
-        # Smooth Progress Bar
-        self.progress_bar = ctk.CTkProgressBar(
-            action_frame,
-            height=14,
-            corner_radius=7
-        )
-        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 6))
+        self.progress_bar = ctk.CTkProgressBar(card, height=10, corner_radius=5)
+        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 10))
         self.progress_bar.set(0.0)
 
-        stats_frame = ctk.CTkFrame(action_frame, fg_color="transparent")
-        stats_frame.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 12))
-        stats_frame.grid_columnconfigure(0, weight=2)
-        stats_frame.grid_columnconfigure(1, weight=1)
+        metrics_box = ctk.CTkFrame(card, fg_color="transparent")
+        metrics_box.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 14))
+        metrics_box.grid_columnconfigure(0, weight=2)
+        metrics_box.grid_columnconfigure(1, weight=1)
+        metrics_box.grid_columnconfigure(2, weight=1)
 
         self.status_phase_label = ctk.CTkLabel(
-            stats_frame,
-            text="Статус: Готовий до роботи",
+            metrics_box,
+            text=self._t("status_ready"),
             font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=self.TEXT_PRIMARY,
             anchor="w"
         )
         self.status_phase_label.grid(row=0, column=0, sticky="w")
 
-        self.metrics_label = ctk.CTkLabel(
-            stats_frame,
-            text="Швидкість: -- | Залишилось: -- | 0.0%",
-            font=ctk.CTkFont(size=12),
-            text_color=("gray40", "gray70"),
+        self.speed_badge = ctk.CTkLabel(
+            metrics_box,
+            text=f"{self._t('speed_label')}--",
+            font=ctk.CTkFont(size=11),
+            text_color=self.TEXT_SECONDARY,
             anchor="e"
         )
-        self.metrics_label.grid(row=0, column=1, sticky="e")
+        self.speed_badge.grid(row=0, column=1, sticky="e", padx=(0, 12))
 
-    def _create_console_card(self, parent: ctk.CTkBaseClass) -> None:
-        """Constructs the expandable activity console for detailed operational logs."""
-        console_frame = ctk.CTkFrame(parent, corner_radius=10, fg_color=("gray95", "gray17"))
-        console_frame.grid(row=6, column=0, sticky="nsew", pady=(0, 0), padx=0)
-        console_frame.grid_columnconfigure(0, weight=1)
-        console_frame.grid_rowconfigure(1, weight=1)
+        self.eta_badge = ctk.CTkLabel(
+            metrics_box,
+            text=f"0.0%  |  {self._t('eta_label')}--:--",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=self.TEXT_PRIMARY,
+            anchor="e"
+        )
+        self.eta_badge.grid(row=0, column=2, sticky="e")
 
-        header_box = ctk.CTkFrame(console_frame, fg_color="transparent")
-        header_box.grid(row=0, column=0, sticky="ew", padx=16, pady=(8, 4))
+    def _create_terminal_card(self, parent: ctk.CTkBaseClass) -> None:
+        card = ctk.CTkFrame(
+            parent,
+            corner_radius=12,
+            fg_color=self.BG_CARD_COLOR,
+            border_width=1,
+            border_color=self.BORDER_CARD_COLOR
+        )
+        card.grid(row=2, column=0, sticky="nsew")
+        card.grid_columnconfigure(0, weight=1)
+        card.grid_rowconfigure(1, weight=1)
+
+        header_box = ctk.CTkFrame(card, fg_color="transparent")
+        header_box.grid(row=0, column=0, sticky="ew", padx=16, pady=(10, 6))
         header_box.grid_columnconfigure(0, weight=1)
 
-        console_title = ctk.CTkLabel(
+        self.terminal_title = ctk.CTkLabel(
             header_box,
-            text="📋 Детальний журнал подій:",
-            font=ctk.CTkFont(size=12, weight="bold")
+            text=self._t("card_terminal"),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=self.TEXT_PRIMARY
         )
-        console_title.grid(row=0, column=0, sticky="w")
+        self.terminal_title.grid(row=0, column=0, sticky="w")
 
-        clear_log_btn = ctk.CTkButton(
+        self.clear_log_btn = ctk.CTkButton(
             header_box,
-            text="Очистити журнал",
-            width=110,
+            text=self._t("btn_clear_log"),
+            width=85,
             height=24,
             font=ctk.CTkFont(size=11),
-            fg_color=("gray65", "gray28"),
-            hover_color=("gray50", "gray38"),
+            fg_color=("gray75", "gray25"),
+            hover_color=("gray65", "gray35"),
             command=self._clear_console_log
         )
-        clear_log_btn.grid(row=0, column=1, sticky="e")
+        self.clear_log_btn.grid(row=0, column=1, sticky="e")
 
         self.console_textbox = ctk.CTkTextbox(
-            console_frame,
-            height=130,
+            card,
             font=ctk.CTkFont(family="Consolas", size=11),
             wrap="word",
             activate_scrollbars=True
         )
-        self.console_textbox.grid(row=1, column=0, sticky="nsew", padx=14, pady=(0, 12))
+        self.console_textbox.grid(row=1, column=0, sticky="nsew", padx=14, pady=(0, 14))
 
-        self._append_log_message(
-            f"=== TrackPull v{self.APP_VERSION} успішно запущено. Готовий до роботи. ===",
-            "INFO"
+        self._append_log_message(self._t("log_started"), "INFO")
+
+    # ------------------------------------------------------------------------
+    # REAL-TIME BILINGUAL LANGUAGE SWITCHER
+    # ------------------------------------------------------------------------
+
+    def _on_language_changed(self, selected_lang_text: str) -> None:
+        if "English" in selected_lang_text:
+            self.current_lang = "EN"
+        else:
+            self.current_lang = "UA"
+        self._apply_language(self.current_lang)
+
+    def _apply_language(self, lang: str) -> None:
+        """Dynamically re-translates all interface elements instantly."""
+        self.title(f"{self.APP_TITLE} {self.APP_VERSION}")
+        self.subtitle_label.configure(text=self._t("app_subtitle"))
+        self.lang_lbl.configure(text=self._t("lang_label"))
+        self.theme_lbl.configure(text=self._t("theme_label"))
+
+        # Re-populate theme menu strings
+        current_theme_selection = self.theme_menu.get()
+        self.theme_menu.configure(
+            values=[self._t("theme_dark"), self._t("theme_light"), self._t("theme_system")]
         )
+        if lang == "EN":
+            if current_theme_selection == "Темна":
+                self.theme_menu.set("Dark")
+            elif current_theme_selection == "Світла":
+                self.theme_menu.set("Light")
+            elif current_theme_selection == "Системна":
+                self.theme_menu.set("System")
+        else:
+            if current_theme_selection == "Dark":
+                self.theme_menu.set("Темна")
+            elif current_theme_selection == "Light":
+                self.theme_menu.set("Світла")
+            elif current_theme_selection == "System":
+                self.theme_menu.set("Системна")
+
+        # Update FFmpeg status badge
+        if self._ffmpeg_available:
+            self.ffmpeg_status_badge.configure(text=self._t("ffmpeg_ready"))
+        else:
+            self.ffmpeg_status_badge.configure(text=self._t("ffmpeg_missing"))
+
+        # Left Column Cards
+        self.format_card_title.configure(text=self._t("card_format"))
+        self.quality_title.configure(text=self._t("quality_title"))
+
+        # Bitrate dropdown items
+        quality_values = [
+            self._t("bitrate_320"),
+            self._t("bitrate_256"),
+            self._t("bitrate_192"),
+            self._t("bitrate_128")
+        ]
+        self.quality_menu.configure(values=quality_values)
+        if self.audio_format_var.get().upper() in ("FLAC", "WAV"):
+            self.quality_title.configure(text=self._t("quality_lossless"))
+            self.quality_menu.set(self._t("quality_lossless"))
+        else:
+            self.quality_menu.set(quality_values[0])
+
+        self.options_card_title.configure(text=self._t("card_options"))
+        self.playlist_switch.configure(text=self._t("switch_playlist"))
+        self.metadata_switch.configure(text=self._t("switch_metadata"))
+        self.thumbnail_switch.configure(text=self._t("switch_thumbnail"))
+
+        self.dir_card_title.configure(text=self._t("card_directory"))
+        self.browse_btn.configure(text=self._t("btn_browse"))
+        self.open_btn.configure(text=self._t("btn_open_folder"))
+
+        # Right Column Cards
+        self.url_card_title.configure(text=self._t("url_title"))
+        self.url_entry.configure(placeholder_text=self._t("url_placeholder"))
+        self.paste_btn.configure(text=self._t("btn_paste"))
+
+        if not self._active_worker:
+            self.download_button.configure(text=self._t("btn_download"))
+            self.cancel_button.configure(text=self._t("btn_cancel"))
+            self.status_phase_label.configure(text=self._t("status_ready"))
+        else:
+            self.download_button.configure(text=self._t("btn_downloading"))
+            self.cancel_button.configure(text=self._t("btn_cancel"))
+
+        self.speed_badge.configure(text=f"{self._t('speed_label')}--")
+        self.eta_badge.configure(text=f"0.0%  |  {self._t('eta_label')}--:--")
+
+        self.terminal_title.configure(text=self._t("card_terminal"))
+        self.clear_log_btn.configure(text=self._t("btn_clear_log"))
 
     # ------------------------------------------------------------------------
     # EVENT HANDLERS AND LOGIC
     # ------------------------------------------------------------------------
 
     def _on_theme_changed(self, selected_theme: str) -> None:
-        """Handles appearance theme alterations (Dark, Light, System)."""
-        mapping: Dict[str, str] = {
-            "Темна": "Dark",
-            "Світла": "Light",
-            "Системна": "System",
-        }
-        target_mode: str = mapping.get(selected_theme, "Dark")
-        ctk.set_appearance_mode(target_mode)
+        if selected_theme in ("Темна", "Dark"):
+            ctk.set_appearance_mode("Dark")
+        elif selected_theme in ("Світла", "Light"):
+            ctk.set_appearance_mode("Light")
+        else:
+            ctk.set_appearance_mode("System")
 
     def _on_format_changed(self, selected_format: str) -> None:
-        """Dynamically adapts bitrate options based on whether codec is lossy or lossless."""
+        self.audio_format_var.set(selected_format)
         if selected_format.upper() in ("FLAC", "WAV"):
             self.quality_menu.configure(state="disabled")
-            self.quality_label.configure(
-                text="Бітрейт: Авто (Без втрат якості / Lossless)"
-            )
+            self.quality_title.configure(text=self._t("quality_lossless"))
+            self.quality_menu.set(self._t("quality_lossless"))
         else:
             self.quality_menu.configure(state="normal")
-            self.quality_label.configure(text="Бітрейт (швидкість потоку):")
+            self.quality_title.configure(text=self._t("quality_title"))
+            self.quality_menu.set(self._t("bitrate_320"))
 
     def _paste_clipboard_url(self) -> None:
-        """Pastes the textual contents of the Windows clipboard into the URL field."""
         try:
             content: str = self.clipboard_get().strip()
             if content:
                 self.url_entry.delete(0, "end")
                 self.url_entry.insert(0, content)
-                self._append_log_message(f"Вставлено посилання: {content}", "INFO")
+                self._append_log_message(f"Вставлено: {content}", "INFO")
         except Exception as clip_err:
-            self._append_log_message(f"Не вдалося зчитати буфер обміну: {clip_err}", "WARNING")
+            self._append_log_message(f"Буфер обміну недоступний: {clip_err}", "WARNING")
 
     def _clear_url_entry(self) -> None:
-        """Clears the URL entry field."""
         self.url_entry.delete(0, "end")
 
     def _browse_directory(self) -> None:
-        """Opens a Windows native folder selection dialog."""
         selected: str = filedialog.askdirectory(
             initialdir=self.download_directory_var.get(),
-            title="Оберіть папку для збереження аудіотреків"
+            title=self._t("btn_browse")
         )
         if selected:
             self.download_directory_var.set(selected)
-            self._append_log_message(f"Папку для збереження змінено: {selected}", "INFO")
+            self._append_log_message(f"Папку змінено: {selected}", "INFO")
 
     def _open_directory_in_explorer(self) -> None:
-        """Reveals the chosen download destination directory in Windows File Explorer."""
         folder_path: str = self.download_directory_var.get()
         if os.path.isdir(folder_path):
             try:
                 os.startfile(folder_path)
             except Exception as explorer_err:
-                self._append_log_message(
-                    f"Не вдалося відкрити папку в Explorer: {explorer_err}",
-                    "ERROR"
-                )
+                self._append_log_message(f"Помилка відкриття провідника: {explorer_err}", "ERROR")
         else:
             messagebox.showwarning(
-                "Папка не існує",
-                f"Вказана папка не знайдена на диску:\n{folder_path}\n\nСтворіть її або виберіть іншу."
+                self._t("msg_folder_not_found_title"),
+                f"{self._t('msg_folder_not_found_body')}{folder_path}"
             )
 
     def _clear_console_log(self) -> None:
-        """Clears all text within the activity console box."""
         self.console_textbox.delete("1.0", "end")
 
     def _append_log_message(self, message: str, level: str = "INFO") -> None:
-        """Appends a timestamped message into the read-only console textbox."""
         import datetime
         timestamp: str = datetime.datetime.now().strftime("%H:%M:%S")
         prefix: str = {
             "INFO": "[INFO]",
-            "WARNING": "[УВАГА]",
-            "ERROR": "[ПОМИЛКА]",
-            "SUCCESS": "[УСПІХ]",
+            "WARNING": "[УВАГА]" if self.current_lang == "UA" else "[WARN]",
+            "ERROR": "[ПОМИЛКА]" if self.current_lang == "UA" else "[ERROR]",
+            "SUCCESS": "[УСПІХ]" if self.current_lang == "UA" else "[OK]",
         }.get(level, "[LOG]")
 
         formatted: str = f"[{timestamp}] {prefix} {message}\n"
         self.console_textbox.insert("end", formatted)
         self.console_textbox.see("end")
 
-    # ------------------------------------------------------------------------
-    # DEPENDENCY EVALUATION AND INSTRUCTION MODAL
-    # ------------------------------------------------------------------------
-
     def _evaluate_system_dependencies(self) -> None:
-        """Inspects whether FFmpeg and Deno are available and toggles UI alerts."""
         is_ffmpeg_available, ffmpeg_loc = SystemDependencyChecker.locate_ffmpeg()
         self._ffmpeg_available = is_ffmpeg_available
         self._ffmpeg_location = ffmpeg_loc
@@ -1136,26 +1346,28 @@ class TrackPullApp(ctk.CTk):
         self._deno_location = deno_loc
 
         if is_ffmpeg_available:
-            self.dependency_banner.grid_remove()
-            self._append_log_message(f"FFmpeg готовий: {ffmpeg_loc}", "SUCCESS")
-        else:
-            self.dependency_banner.grid(
-                row=1, column=0, sticky="ew", pady=(0, 10), padx=0
+            self.ffmpeg_status_badge.configure(
+                text=self._t("ffmpeg_ready"),
+                fg_color=("#ECFDF5", "#064E3B"),
+                text_color=("#059669", "#34D399")
             )
-            self._append_log_message(
-                "FFmpeg не знайдено в системі. Потрібне встановлення для повного функціоналу.",
-                "WARNING"
+            self._append_log_message(f"{self._t('log_ffmpeg_found')} ({ffmpeg_loc})", "SUCCESS")
+        else:
+            self.ffmpeg_status_badge.configure(
+                text=self._t("ffmpeg_missing"),
+                fg_color=("#FEF2F2", "#7F1D1D"),
+                text_color=("#DC2626", "#F87171")
             )
 
         if is_deno_available:
-            self._append_log_message(f"JavaScript runtime (Deno) активний: {deno_loc}", "SUCCESS")
+            self._append_log_message(f"{self._t('log_deno_active')} ({deno_loc})", "SUCCESS")
 
     def _show_ffmpeg_instruction_dialog(self) -> None:
-        """Displays an informative modal dialog explaining how to easily install FFmpeg on Windows."""
+        """Explains in simple human terms what FFmpeg is and why it is ready."""
         dialog = ctk.CTkToplevel(self)
-        dialog.title("Встановлення FFmpeg на Windows")
-        dialog.geometry("620x460")
-        dialog.minsize(580, 420)
+        dialog.title(self._t("dialog_ffmpeg_title"))
+        dialog.geometry("640x440")
+        dialog.minsize(580, 400)
         dialog.grab_set()
 
         dialog.grid_columnconfigure(0, weight=1)
@@ -1163,40 +1375,20 @@ class TrackPullApp(ctk.CTk):
 
         title_lbl = ctk.CTkLabel(
             dialog,
-            text="🛠 Як встановити FFmpeg для TrackPull:",
-            font=ctk.CTkFont(size=16, weight="bold")
+            text=self._t("dialog_ffmpeg_header"),
+            font=ctk.CTkFont(size=15, weight="bold")
         )
         title_lbl.grid(row=0, column=0, padx=20, pady=(18, 10), sticky="w")
 
-        info_box = ctk.CTkTextbox(
-            dialog,
-            font=ctk.CTkFont(size=12),
-            wrap="word"
-        )
+        info_box = ctk.CTkTextbox(dialog, font=ctk.CTkFont(size=12), wrap="word")
         info_box.grid(row=1, column=0, padx=20, pady=10, sticky="nsew")
 
-        instructions: str = (
-            "FFmpeg — це обов'язковий системний інструмент для перекодування аудіо (у формати MP3, "
-            "FLAC, WAV тощо), а також для збереження обкладинок треків та ID3-тегів.\n\n"
-            "Виберіть один із простих способів встановлення:\n\n"
-            "Спосіб 1: Через Windows Terminal / PowerShell (Швидко й просто):\n"
-            "1. Натисніть правою кнопкою миші на меню 'Пуск' та відкрийте 'Термінал' або 'PowerShell'.\n"
-            "2. Введіть команду:\n"
-            "       winget install Gyan.FFmpeg\n"
-            "3. Дочекайтеся завершення завантаження та перезапустіть TrackPull.\n\n"
-            "Спосіб 2: Портативний варіант (Без встановлення в систему):\n"
-            "1. Завантажте архів FFmpeg з офіційного сайту: https://www.gyan.dev/ffmpeg/builds/\n"
-            "2. Розпакуйте файл 'ffmpeg.exe' безпосередньо у папку з програмою TrackPull (або у папку bin/).\n"
-            "3. Натисніть кнопку 'Перевірити' у верхньому банері головного вікна.\n\n"
-            "Спосіб 3: Через пакетний менеджер Chocolatey:\n"
-            "       choco install ffmpeg\n"
-        )
-        info_box.insert("1.0", instructions)
+        info_box.insert("1.0", self._t("dialog_ffmpeg_content"))
         info_box.configure(state="disabled")
 
         close_btn = ctk.CTkButton(
             dialog,
-            text="Зрозуміло, закрити",
+            text=self._t("btn_close"),
             width=140,
             height=34,
             command=dialog.destroy
@@ -1208,12 +1400,11 @@ class TrackPullApp(ctk.CTk):
     # ------------------------------------------------------------------------
 
     def _validate_inputs(self) -> Optional[DownloadOptions]:
-        """Validates the user's configured fields before starting download."""
         raw_url: str = self.url_entry.get().strip()
         if not raw_url:
             messagebox.showwarning(
-                "Порожнє посилання",
-                "Будь ласка, вставте URL-посилання на аудіотрек або плейлист у поле вводу."
+                self._t("msg_empty_url_title"),
+                self._t("msg_empty_url_body")
             )
             self.url_entry.focus()
             return None
@@ -1221,8 +1412,8 @@ class TrackPullApp(ctk.CTk):
         parsed_url = urllib.parse.urlparse(raw_url)
         if not (parsed_url.scheme in ("http", "https") and parsed_url.netloc):
             messagebox.showwarning(
-                "Некоректний URL",
-                "Введене посилання має неправильний формат. Переконайтеся, що воно починається з http:// або https://"
+                self._t("msg_invalid_url_title"),
+                self._t("msg_invalid_url_body")
             )
             self.url_entry.focus()
             return None
@@ -1234,7 +1425,13 @@ class TrackPullApp(ctk.CTk):
 
         selected_format: str = self.audio_format_var.get().strip()
         raw_quality: str = self.audio_quality_var.get().strip()
-        bitrate_kbps: str = self.BITRATE_MAPPING.get(raw_quality, "320")
+        bitrate_kbps: str = "320"
+        if "256" in raw_quality:
+            bitrate_kbps = "256"
+        elif "192" in raw_quality:
+            bitrate_kbps = "192"
+        elif "128" in raw_quality:
+            bitrate_kbps = "128"
 
         return DownloadOptions(
             url=raw_url,
@@ -1247,25 +1444,23 @@ class TrackPullApp(ctk.CTk):
         )
 
     def _on_download_button_clicked(self) -> None:
-        """Triggered when the user presses the primary 'ЗАВАНТАЖИТИ' button."""
         options: Optional[DownloadOptions] = self._validate_inputs()
         if not options:
             return
 
         if not self._ffmpeg_available:
             proceed = messagebox.askyesno(
-                "FFmpeg відсутній",
-                "FFmpeg не знайдено в системі. Завантаження вихідного потоку можливе, проте конвертація у "
-                f"{options.audio_format} та вбудовування тегів/обкладинок вимагають наявності FFmpeg.\n\n"
-                "Бажаєте продовжити без FFmpeg?"
+                self._t("msg_ffmpeg_missing_title"),
+                self._t("msg_ffmpeg_missing_body")
             )
             if not proceed:
                 return
 
         self._set_ui_busy_state(True)
         self.progress_bar.set(0.0)
-        self.metrics_label.configure(text="Швидкість: -- | Залишилось: -- | 0.0%")
-        self.status_phase_label.configure(text="Статус: Підготовка до завантаження...")
+        self.speed_badge.configure(text=f"{self._t('speed_label')}--")
+        self.eta_badge.configure(text=f"0.0%  |  {self._t('eta_label')}--:--")
+        self.status_phase_label.configure(text=self._t("status_preparing"))
 
         self._active_worker = AudioDownloadWorker(
             options=options,
@@ -1281,38 +1476,32 @@ class TrackPullApp(ctk.CTk):
         self._active_worker.start()
 
     def _on_cancel_button_clicked(self) -> None:
-        """Signals active worker thread to safely cancel current job."""
         if self._active_worker and self._active_worker.is_alive():
-            self.cancel_button.configure(state="disabled", text="Зупинка...")
-            self.status_phase_label.configure(text="Статус: Скасування операції...")
-            self._append_log_message("Користувач надіслав запит на зупинку завантаження...", "WARNING")
+            self.cancel_button.configure(state="disabled", text=self._t("btn_stopping"))
+            self.status_phase_label.configure(text=self._t("status_cancelled"))
+            self._append_log_message("Запит на зупинку завантаження...", "WARNING")
             self._active_worker.request_cancellation()
 
     def _set_ui_busy_state(self, is_busy: bool) -> None:
-        """Toggles interactive controls between active and busy states."""
         if is_busy:
-            self.download_button.configure(state="disabled", text="⏳ ЗАВАНТАЖЕННЯ...")
-            self.cancel_button.configure(state="normal", text="Зупинити")
+            self.download_button.configure(state="disabled", text=self._t("btn_downloading"))
+            self.cancel_button.configure(state="normal", text=self._t("btn_cancel"))
             self.url_entry.configure(state="disabled")
-            self.format_menu.configure(state="disabled")
+            self.format_segmented.configure(state="disabled")
             self.quality_menu.configure(state="disabled")
-            self.playlist_checkbox.configure(state="disabled")
-            self.metadata_checkbox.configure(state="disabled")
-            self.thumbnail_checkbox.configure(state="disabled")
+            self.playlist_switch.configure(state="disabled")
+            self.metadata_switch.configure(state="disabled")
+            self.thumbnail_switch.configure(state="disabled")
         else:
-            self.download_button.configure(state="normal", text="⬇ ЗАВАНТАЖИТИ МУЗИКУ")
-            self.cancel_button.configure(state="disabled", text="Зупинити")
+            self.download_button.configure(state="normal", text=self._t("btn_download"))
+            self.cancel_button.configure(state="disabled", text=self._t("btn_cancel"))
             self.url_entry.configure(state="normal")
-            self.format_menu.configure(state="normal")
+            self.format_segmented.configure(state="normal")
             if self.audio_format_var.get().upper() not in ("FLAC", "WAV"):
                 self.quality_menu.configure(state="normal")
-            self.playlist_checkbox.configure(state="normal")
-            self.metadata_checkbox.configure(state="normal")
-            self.thumbnail_checkbox.configure(state="normal")
-
-    # ------------------------------------------------------------------------
-    # ASYNCHRONOUS UPDATE RECEIVERS (RUN ON MAIN UI THREAD)
-    # ------------------------------------------------------------------------
+            self.playlist_switch.configure(state="normal")
+            self.metadata_switch.configure(state="normal")
+            self.thumbnail_switch.configure(state="normal")
 
     def _update_progress(
         self,
@@ -1323,50 +1512,39 @@ class TrackPullApp(ctk.CTk):
         playlist_index: Optional[int] = None,
         playlist_count: Optional[int] = None,
     ) -> None:
-        """Receives and renders progress metrics onto the user interface."""
         self.progress_bar.set(ratio)
         percent_value: float = ratio * 100.0
-        self.metrics_label.configure(
-            text=f"Швидкість: {speed_text} | Залишилось: {eta_text} | {percent_value:.1f}%"
-        )
+        self.speed_badge.configure(text=f"{self._t('speed_label')}{speed_text}")
+        self.eta_badge.configure(text=f"{percent_value:.1f}%  |  {self._t('eta_label')}{eta_text}")
+
         if filename:
-            short_name = (filename[:32] + "...") if len(filename) > 35 else filename
+            short_name = (filename[:34] + "...") if len(filename) > 36 else filename
             if playlist_index and playlist_count:
                 self.status_phase_label.configure(
-                    text=f"Трек [{playlist_index}/{playlist_count}]: {short_name}"
+                    text=f"[{playlist_index}/{playlist_count}] {short_name}"
                 )
             else:
-                self.status_phase_label.configure(text=f"Завантаження: {short_name}")
+                self.status_phase_label.configure(text=f"Трек: {short_name}")
 
     def _update_phase(self, phase_description: str) -> None:
-        """Updates the descriptive phase label."""
         self.status_phase_label.configure(text=f"Статус: {phase_description}")
 
     def _on_download_completed(self, is_success: bool, summary_message: str, was_cancelled: bool) -> None:
-        """Finalizes the job execution, restores UI, and notifies the user."""
         self._set_ui_busy_state(False)
         self._active_worker = None
 
         if was_cancelled:
-            self.status_phase_label.configure(text="Статус: ⏸ Завантаження зупинено")
-            messagebox.showinfo(
-                "Операцію зупинено",
-                "Завантаження було успішно зупинено користувачем."
-            )
+            self.status_phase_label.configure(text=self._t("status_cancelled"))
+            messagebox.showinfo(self._t("status_cancelled"), self._t("status_cancelled"))
         elif is_success:
             self.progress_bar.set(1.0)
-            self.status_phase_label.configure(text="Статус: ✅ Завантаження успішно завершено!")
-            self.metrics_label.configure(text="Швидкість: -- | Залишилось: 00:00 | 100.0%")
-            messagebox.showinfo(
-                "Успіх",
-                "Аудіотрек або плейлист успішно збережено у вибрану папку!"
-            )
+            self.status_phase_label.configure(text=self._t("status_completed"))
+            self.speed_badge.configure(text=f"{self._t('speed_label')}--")
+            self.eta_badge.configure(text=f"100.0%  |  {self._t('eta_label')}00:00")
+            messagebox.showinfo(self._t("msg_success_title"), self._t("msg_success_body"))
         else:
-            self.status_phase_label.configure(text="Статус: ❌ Сталася помилка")
-            messagebox.showerror(
-                "Помилка завантаження",
-                f"Не вдалося завершити завантаження:\n\n{summary_message}"
-            )
+            self.status_phase_label.configure(text=self._t("status_error"))
+            messagebox.showerror(self._t("status_error"), summary_message)
 
 
 # ============================================================================
@@ -1374,18 +1552,9 @@ class TrackPullApp(ctk.CTk):
 # ============================================================================
 
 def main() -> None:
-    """Configures high-DPI scaling and initializes the application event loop."""
     try:
-        if sys.platform.startswith("win"):
-            try:
-                import ctypes
-                ctypes.windll.shcore.SetProcessDpiAwareness(1)
-            except Exception:
-                pass
-
         app = TrackPullApp()
         app.mainloop()
-
     except KeyboardInterrupt:
         sys.exit(0)
     except Exception as runtime_fatal_error:
