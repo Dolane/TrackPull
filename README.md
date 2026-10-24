@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://github.com/Dolane/TrackPull/releases/latest">
-    <img src="https://img.shields.io/github/v/release/Dolane/TrackPull?color=2563EB&label=Download%20TrackPull.exe%20(v1.0.1)&logo=windows&logoColor=white&style=for-the-badge" alt="Download TrackPull.exe">
+    <img src="https://img.shields.io/github/v/release/Dolane/TrackPull?color=2563EB&label=Download%20TrackPull.exe%20(v1.0.2)&logo=windows&logoColor=white&style=for-the-badge" alt="Download TrackPull.exe">
   </a>
 </p>
 
