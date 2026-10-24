@@ -1,0 +1,101 @@
+# ============================================================================
+# Git Ignore Configuration for TrackPull Project
+# ============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller & Executable Build Artifacts
+*.manifest
+*.spec
+*.exe
+
+# Installer logs & temporary outputs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Environments & Virtual Envs
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE & Editor Specific Folders
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Operating System Files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+.DS_Store
+
+# Temporary Downloaded Audio & Media Files
+*.mp3
+*.m4a
+*.flac
+*.wav
+*.opus
+*.ogg
+*.webm
+*.part
+*.ytdl
+*.temp
+
+# Local Binaries (portable dropped files)
+ffmpeg.exe
+ffprobe.exe
+deno.exe
+bin/ffmpeg.exe
+bin/ffprobe.exe
+bin/deno.exe

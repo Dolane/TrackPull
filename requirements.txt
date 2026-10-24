@@ -1,0 +1,17 @@
+# TrackPull Dependencies
+# Modern, High-Performance Windows Music & Playlist Downloader
+
+# GUI Framework
+customtkinter>=5.2.2
+
+# Core Audio & Video Extraction Engine
+yt-dlp>=2024.10.22
+
+# Audio Metadata & ID3 Tagging Engine
+mutagen>=1.47.0
+
+# Image Processing Library (Cover art formatting & CustomTkinter image support)
+Pillow>=10.4.0
+
+# Standalone Windows Binary Builder
+pyinstaller>=6.10.0
